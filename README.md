@@ -132,7 +132,7 @@ Sau khi deploy, đặt các biến sau trong **Environment Variables** của Ver
 | Biến | Bắt buộc | Ý nghĩa |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | Không | Thiếu thì sản phẩm chạy bằng lớp luật cứng |
-| `SCORING_MODEL` | Không | Mặc định `claude-haiku-4-5` |
+| `SCORING_MODEL` | Không | Mặc định `claude-haiku-4-5-20251001` |
 | `AI_ENABLED` | Không | Đặt `false` để tắt lớp AI mà không cần xoá khoá |
 
 ## 9. Còn phải làm

@@ -62,7 +62,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { hoiThoai } = req.body || {};
+    // Vercel tự phân tích thân yêu cầu JSON, nhưng không phải môi trường nào
+    // cũng làm vậy — nhận cả hai dạng để không phụ thuộc vào nền tảng.
+    let than = req.body;
+    if (typeof than === 'string') {
+      try { than = JSON.parse(than); } catch { than = {}; }
+    }
+    const { hoiThoai } = than || {};
     if (typeof hoiThoai !== 'string' || hoiThoai.trim().length < 30) {
       return res.status(400).json({ loi: 'Hội thoại quá ngắn hoặc không hợp lệ.' });
     }
@@ -78,7 +84,7 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: process.env.SCORING_MODEL || 'claude-haiku-4-5',
+        model: process.env.SCORING_MODEL || 'claude-haiku-4-5-20251001',
         max_tokens: 900,
         temperature: 0,
         system: HUONG_DAN,
