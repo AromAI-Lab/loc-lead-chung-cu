@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lọc lead chung cư — chấm điểm trong 10 giây</title>
+<meta name="description" content="Dán hội thoại Zalo, biết ngay lead nào Ảo để bỏ, lead nào Nóng để gọi trước. Dữ liệu cá nhân được che trước khi rời khỏi máy bạn.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🎯</text></svg>">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">Lọc lead chung cư</div>
+    <p class="tagline">Dán hội thoại. Trong 10 giây biết lead nào <b>Ảo</b> để bỏ, lead nào <b>Nóng</b> để gọi trước.</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="card">
+    <div class="card-head">
+      <h2>1 · Dán hội thoại</h2>
+      <div class="mau">
+        <span>Chưa có sẵn?</span>
+        <button type="button" class="link" data-mau="nong">Thử ca Nóng</button>
+        <button type="button" class="link" data-mau="ao">Thử ca Ảo</button>
+        <button type="button" class="link" data-mau="som">Thử ca mới tìm hiểu</button>
+      </div>
+    </div>
+
+    <textarea id="hoiThoai" rows="10" spellcheck="false"
+      placeholder="Dán đoạn chat Zalo/Messenger vào đây.
+
+Mẹo chấm chính xác hơn: đặt K: trước lời khách và S: trước lời bạn.
+
+K: căn 2PN còn không em, giá bao nhiêu
+S: dạ còn ạ, 3,2 tỷ. Anh mua để ở hay đầu tư ạ
+K: nhà anh ở. hai vợ chồng chốt rồi, tháng 12 hết hợp đồng thuê"></textarea>
+
+    <details class="them">
+      <summary>Thông tin thêm — không bắt buộc, nhưng chấm sát hơn</summary>
+      <div class="them-body">
+        <div class="row">
+          <label>Giá căn đang bán
+            <span class="don-vi"><input type="number" id="giaCan" step="0.1" min="0" placeholder="3.2"> tỷ</span>
+          </label>
+          <label>Ngân sách khách nêu
+            <span class="don-vi"><input type="number" id="nganSach" step="0.1" min="0" placeholder="1.2"> tỷ</span>
+          </label>
+        </div>
+        <p class="ghi-chu">Hai ô trên dùng để phát hiện cờ <b>A2 — ngân sách lệch quá xa</b>.</p>
+        <div class="ticks">
+          <label><input type="checkbox" id="imSauBaoGia"> Đã nhận báo giá rồi im quá 48h</label>
+          <label><input type="checkbox" id="khongNgheMay"> Không nghe máy từ 3 lần trở lên</label>
+          <label><input type="checkbox" id="taiKhoanDangNgo"> Tài khoản Zalo/FB đáng ngờ (mới lập, không avatar)</label>
+        </div>
+      </div>
+    </details>
+
+    <div class="hanh-dong">
+      <button id="chay" class="chinh">Ẩn danh hoá &amp; chấm điểm</button>
+      <label class="ai-toggle"><input type="checkbox" id="dungAI" checked> Chấm thêm bằng AI</label>
+    </div>
+  </section>
+
+  <section class="card" id="khuAnDanh" hidden>
+    <h2>2 · Đã che dữ liệu cá nhân trước khi gửi đi</h2>
+    <p class="lead" id="tomTatChe"></p>
+    <details>
+      <summary>Xem đúng nội dung được gửi đi</summary>
+      <pre id="banSach"></pre>
+    </details>
+    <p class="phap-ly">Số điện thoại, email, số tài khoản, số giấy tờ và tên riêng được thay bằng nhãn <b>ngay trên máy bạn</b>, trước khi bất kỳ dữ liệu nào rời khỏi trình duyệt. Máy chủ che lại lần thứ hai. Hội thoại gốc không được lưu ở đâu cả.</p>
+  </section>
+
+  <section id="ketQua" hidden></section>
+
+</main>
+
+<footer class="wrap chan">
+  <p>Bộ tiêu chí đầy đủ: <a href="/docs/scoring-criteria.md">docs/scoring-criteria.md</a> · Mã nguồn mở trên GitHub</p>
+  <p class="nho">Công cụ hỗ trợ ra quyết định, không thay thế phán đoán của sale. Ngưỡng điểm còn đang được hiệu chuẩn bằng dữ liệu thật.</p>
+</footer>
+
+<script type="module" src="/app.js"></script>
+</body>
+</html>

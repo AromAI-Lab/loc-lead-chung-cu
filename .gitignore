@@ -1,0 +1,12 @@
+# Bi mat - KHONG BAO GIO day len GitHub
+.env
+.env.*
+!.env.example
+
+# Phu thuoc
+node_modules/
+
+# He thong
+.DS_Store
+.vercel
+*.log

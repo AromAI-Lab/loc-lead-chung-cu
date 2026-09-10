@@ -1,0 +1,14 @@
+{
+  "name": "loc-lead-chung-cu",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cong cu cham diem va loc lead cho sale can ho chung cu",
+  "type": "module",
+  "scripts": {
+    "dev": "node dev-server.js",
+    "test": "node test/run-tests.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
