@@ -5,6 +5,7 @@
 import { chamDiem } from '../public/lib/criteria.js';
 import { anDanhHoa } from '../public/lib/anonymize.js';
 import { CA_KIEM_THU } from './fixtures.js';
+import { kiemThuWebhook } from './webhook-tests.js';
 
 let dat = 0;
 let truot = 0;
@@ -59,6 +60,9 @@ console.log('\n=== 3. Bất biến ===\n');
   const kq2 = chamDiem(null);
   bao(kq2.duLieuDu === false, 'Đầu vào rỗng không làm hỏng chương trình');
 }
+
+console.log('\n=== 4. Chữ ký webhook Polar ===\n');
+kiemThuWebhook(bao);
 
 console.log(`\n──────────────\nĐạt: ${dat} · Trượt: ${truot}\n`);
 process.exit(truot > 0 ? 1 : 0);
