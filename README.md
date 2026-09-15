@@ -1,6 +1,6 @@
 # Lọc lead chung cư
 
-**Dán hội thoại Zalo. Trong 10 giây biết lead nào Ảo để bỏ, lead nào Nóng để gọi trước.**
+**Dán hội thoại Zalo. Trong 10 giây biết lead nào Ảo để bỏ, lead nào Nóng để gọi trước — và có ngay hồ sơ khách đã điền sẵn, không phải gõ chữ nào.**
 
 Dự án học viên — cohort *Build to Own* (AromAI Lab, 09/2026).
 
@@ -8,7 +8,7 @@ Dự án học viên — cohort *Build to Own* (AromAI Lab, 09/2026).
 
 ## 1. Vấn đề
 
-Một sale căn hộ chung cư ở Hà Nội hoặc TP.HCM tự chạy quảng cáo 10–20 triệu một tháng nhận về 30–80 lead. Phần lớn thời gian trong ngày của họ đi vào việc **gọi điện để phát hiện ra người đó không phải khách mua**.
+Một sale căn hộ chung cư ở Hà Nội hoặc TP.HCM nhận 30–80 lead một tháng, phần lớn từ quảng cáo của công ty hoặc chủ đầu tư rót xuống. Phần lớn thời gian trong ngày của họ đi vào việc **gọi điện để phát hiện ra người đó không phải khách mua**.
 
 Ba loại lead ăn thời gian nặng nhất:
 
@@ -20,7 +20,7 @@ Việc phân loại hiện làm bằng cảm tính, mỗi sale một kiểu, kh�
 
 ## 2. Dành cho ai
 
-Sale căn hộ chung cư **từ 1 năm nghề trở lên**, đang tự chạy quảng cáo, bán trực tiếp cho khách cá nhân (không qua sàn).
+Sale căn hộ chung cư **từ 1 năm nghề trở lên**, nhận lead từ quảng cáo công ty hoặc tự đăng bài trên trang cá nhân, bán trực tiếp cho khách cá nhân.
 
 Người dùng này **không có Zalo OA, không có CRM, và không cài đặt gì cả**. Đó là ràng buộc thiết kế quan trọng nhất: sản phẩm phải chạy được chỉ với một đường link và thao tác dán.
 
@@ -63,6 +63,34 @@ Bộ tiêu chí đầy đủ, kèm phần "tool này chưa làm được gì": [
 - **Lớp 1 — luật cứng.** Chạy hoàn toàn trong trình duyệt. Không gọi mạng, không cần khoá API. Đây là lưới an toàn: mất mạng, hết hạn mức, khoá bị thu hồi thì sản phẩm **vẫn trả được kết quả**.
 - **Lớp 2 — AI.** Chấm lại độc lập để bắt sắc thái mà luật cứng bỏ sót, và gợi ý tin nhắn nên gửi tiếp. Khi hai lớp lệch từ 3 điểm trở lên, sản phẩm **nói thẳng là nên tự đọc lại** thay vì giấu đi.
 
+### Chân dung khách — vì sao chấm điểm thôi là chưa đủ
+
+Chấm điểm trả lời câu hỏi *hôm nay gọi ai trước*. Nó không trả lời được câu hỏi ba tuần sau:
+*người này là ai, đã nói gì, mình đang đứng ở đâu với họ*.
+
+Khảo sát của Meey Land (07/2021): **97%** môi giới vẫn lưu khách bằng sổ tay hoặc Excel,
+**50%** thường xuyên quên thông tin khách, **40%** lỡ hẹn — dù CRM miễn phí cho môi giới
+đã có trên thị trường từ lâu.
+
+Một CRM miễn phí có thương hiệu mà 97% vẫn dùng sổ tay, nghĩa là bức tường không nằm ở
+chỗ lưu. Nó nằm ở công đoạn **gõ tay**: nhập một khách vào CRM mất 3–5 phút, sale có 40
+khách thì không ai làm.
+
+Nên sản phẩm này không bán chỗ lưu. Nó làm đúng một việc: **biến hội thoại thành bản ghi
+có cấu trúc mà sale không phải gõ chữ nào.**
+
+Sau khi chấm, tool tự điền: nhu cầu, loại căn, diện tích, ngân sách, cách thu xếp tài chính,
+ai là người quyết, lý do mua, mốc thời gian, đã đi xem nơi khác chưa, đang quan tâm những gì —
+cộng hai mục quan trọng nhất: **chỗ còn thiếu** và **câu nên hỏi tiếp để lấp chỗ đó**.
+
+Sale chỉ đặt một cái tên rồi bấm Lưu. Mỗi hồ sơ có nút **Chép** ra văn bản thuần để dán
+sang CRM của sàn — sản phẩm này cố ý **nạp dữ liệu cho cái tủ người ta đang dùng**,
+chứ không đòi thay cái tủ đó.
+
+Hồ sơ lưu trong `localStorage` trên máy sale, không gửi lên máy chủ nào.
+Đánh đổi: xoá dữ liệu duyệt web là mất hồ sơ (có nút Xuất JSON để sao lưu),
+và không đồng bộ giữa máy tính với điện thoại.
+
 ## 4. Dữ liệu cá nhân — được xử lý ra sao
 
 Luật Bảo vệ dữ liệu cá nhân có hiệu lực 01/01/2026 xếp số điện thoại, email, số tài khoản, số giấy tờ vào nhóm dữ liệu cá nhân. Gửi nguyên văn hội thoại tới một mô hình đặt ở nước ngoài là hành vi chuyển dữ liệu xuyên biên giới.
@@ -95,6 +123,8 @@ public/
   lib/
     anonymize.js      Ẩn danh hoá. Dùng chung cho trình duyệt và máy chủ
     criteria.js       Động cơ chấm điểm — 2 trục, 4 tiêu chí, 7 cờ Ảo
+    profile.js        Trích chân dung khách từ hội thoại. Không giữ lại hội thoại gốc
+    store.js          Kho hồ sơ trong localStorage: lưu, tìm, xếp ưu tiên, xuất JSON
     samples.js        Hội thoại mẫu để thử ngay
 api/
   score.js            Hàm serverless. NƠI DUY NHẤT đọc khoá API
@@ -102,7 +132,8 @@ docs/
   scoring-criteria.md Bộ tiêu chí đầy đủ, kèm phần hạn chế
 test/
   fixtures.js         6 hội thoại thật, mỗi ca một loại
-  run-tests.js        22 phép kiểm thử
+  profile-tests.js    Kiểm thử chân dung khách và kho hồ sơ
+  run-tests.js        53 phép kiểm thử
 dev-server.js         Máy chủ chạy thử trên máy cá nhân
 ```
 
@@ -117,7 +148,7 @@ dev-server.js         Máy chủ chạy thử trên máy cá nhân
 ## 7. Chạy trên máy
 
 ```bash
-npm test          # 22 phép kiểm thử, không cần mạng, không cần khoá
+npm test          # 53 phép kiểm thử, không cần mạng, không cần khoá
 node dev-server.js  # mở http://localhost:3000
 ```
 

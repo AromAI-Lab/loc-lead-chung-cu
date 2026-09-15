@@ -1,6 +1,6 @@
 # Bàn giao dự án — Lọc lead chung cư
 
-*Cập nhật 11/09/2026 · Đọc file này khi mở phiên Claude mới, đừng hỏi lại từ đầu*
+*Cập nhật 14/09/2026 · Đọc file này khi mở phiên Claude mới, đừng hỏi lại từ đầu*
 
 > Quy trình làm bài tập Campus nằm ở skill `build-to-own-campus`, không nhắc lại ở đây.
 > File này chỉ giữ **trạng thái, quyết định và việc còn lại**.
@@ -20,20 +20,23 @@ Sản phẩm: **tool AI chấm điểm và lọc lead ảo** cho **sale căn h�
 
 ## 2. Trạng thái Campus
 
-**40/105 điểm (38%)** tính tới 10/09.
+**75/105 điểm (71%)** tính tới 14/09/2026. Bài Buổi 0 tới Buổi 6 đã nộp đủ, đủ điểm cả 9 bài.
 
-| Bài | Điểm |
-|---|---|
-| Buổi 2 · Máy đã sẵn sàng | 10/10 |
-| Buổi 3 · Hồ sơ thị trường | 10/10 |
-| Buổi 4 · Lõi sản phẩm chạy được | 10/10 |
-| Buổi 5 · Sản phẩm có địa chỉ thật | 10/10 |
-| Giới thiệu bản thân | 0/5 |
-| Cài agent và gói AI | 0/5 |
-| Ba bài: ngày làm việc, tiền công cụ, ba chỗ đau | 0/5 |
-| Buổi 1 · Đào sâu ba chỗ đau | 0/10 |
+| Bài còn trống | Hạn | Điểm |
+|---|---|---|
+| **Demo Day · video 90–120 giây** | **23:59 ngày 15/09** | 0/10 |
+| Buổi 7 · Đưa ra cho người lạ dùng thật | 20:00 ngày 17/09 | 0/10 |
+| Buổi 8 · Một agent làm thay một việc lặp lại | 20:00 ngày 20/09 | 0/10 |
 
-**25 điểm đang bỏ trống** từ Tuần 0 và Buổi 1. Nội dung đã nộp trên Discord hồi đó, chỉ chưa chép sang Campus. **Bài quá hạn vẫn được chấm đủ điểm** — đã kiểm chứng với Buổi 4 (nộp muộn 4 ngày, vẫn 10/10).
+Video Pre-Demo Day là **vòng loại**: chỉ 10 người được thuyết trình live ngày 20/09.
+Ba phần bắt buộc: (1) vấn đề 15–20 giây, (2) demo share màn hình — phần dài nhất,
+(3) thực chứng: đã có ai dùng thật chưa, phản hồi ra sao.
+
+Buổi 7 và Buổi 8 đã **đổi chỗ** cho nhau từ 06/09: Buổi 7 là Ra mắt và phân phối,
+Buổi 8 là Đội agent tự vận hành. Bản ghi Buổi 7 (13/09) tới 14/09 vẫn chưa lên Campus.
+
+Ô "$10 credit Kyma" trên trang Tiến độ vẫn không có nút lấy mã — lỗi phía Campus,
+không chặn việc gì vì đã có khoá Anthropic riêng.
 
 ## 3. Sản phẩm — quyết định thiết kế cốt lõi
 
@@ -60,20 +63,147 @@ Bộ tiêu chí đầy đủ: `docs/scoring-criteria.md`
 2. **Hội thoại dưới 25 từ → từ chối chấm**, trả về 3 câu nên hỏi trước. Thà nói "chưa đủ dữ liệu" còn hơn chấm bừa.
 3. **Ẩn danh hoá hai lần** — lần một trong trình duyệt (người dùng xem được), lần hai ở máy chủ. Không lưu hội thoại gốc.
 
+### Chân dung khách và kho hồ sơ (thêm 14/09)
+
+`public/lib/profile.js` biến hội thoại đã ẩn danh hoá thành bản ghi có cấu trúc:
+nhu cầu, loại căn, diện tích, ngân sách, tài chính, người quyết, lý do mua, mốc thời gian,
+đã đi xem chưa, đang quan tâm gì — cộng **chỗ còn thiếu** và **câu nên hỏi tiếp**.
+
+Phần "câu nên hỏi tiếp" suy thẳng từ tiêu chí dưới 2 điểm: mỗi ô trống có đúng một câu
+lấp được nó. Đây là phần biến bản ghi quá khứ thành việc làm tiếp.
+
+`public/lib/store.js` lưu trong `localStorage` của trình duyệt sale.
+Chọn trình duyệt thay vì máy chủ vì hai lý do: không cần đăng ký (đúng ràng buộc
+"chạy chỉ với một đường link"), và dữ liệu khách không rời máy sale nên sản phẩm không
+trở thành bên xử lý dữ liệu cá nhân tập trung.
+
+Đánh đổi đã biết, có nói thẳng trên giao diện: xoá dữ liệu duyệt web là mất hồ sơ
+(có nút Xuất JSON để sao lưu), và không đồng bộ giữa máy tính với điện thoại.
+
+**Hai bất biến được kiểm thử tự động:**
+1. Chân dung không bao giờ chứa lại câu nào của hội thoại gốc.
+2. Danh sách trắng `DANH_SACH_TRUONG` của kho phủ hết mọi trường chân dung sinh ra —
+   thiếu một trường là mất dữ liệu âm thầm lúc lưu.
+
 ### Kiểm thử
 
-`npm test` — 22 phép, 6 ca thật (Nóng, Ấm, mới tìm hiểu, môi giới dò giá, lừa đảo, quá ngắn). Chạy trước mỗi lần push.
+`npm test` — 53 phép, 6 ca thật (Nóng, Ấm, mới tìm hiểu, môi giới dò giá, lừa đảo, quá ngắn), cộng phần chân dung và kho hồ sơ. Chạy trước mỗi lần push.
 
-## 4. Định vị và giá — đã chốt, đừng research lại
+## 4. Định vị và giá — đã sửa lại ngày 14/09, ĐỌC KỸ TRƯỚC KHI RESEARCH LẠI
 
-**ICP:** sale chung cư ≥1 năm nghề, tự chạy ads 10–20 triệu/tháng, nhận 30–80 lead/tháng, không có Zalo OA, không có CRM. Đây là ràng buộc thiết kế: sản phẩm phải chạy chỉ với một đường link.
+### ICP cũ đã SAI ở một chỗ quan trọng
 
-**Giá:** niêm yết **249k/tháng**, gói 3 tháng 599k, free 30 lead đầu.
+Bản 11/09 ghi *"sale tự chạy ads 10–20 triệu/tháng"*. **Con số này không thực tế.**
+Thực tế: sale chủ yếu ăn theo quảng cáo và marketing của công ty hoặc chủ đầu tư;
+tự chạy bài trên trang cá nhân cùng lắm 2–3 triệu/tháng theo ngân sách Facebook đề xuất.
 
-> Ngày 10/09 có cân nhắc hạ xuống 99k. **Đã phản biện và giữ 249k.** Lý do: ICP tiêu 10–20tr/tháng cho ads, 249k là 1–2,5% — rào cản là *niềm tin*, không phải giá. Hạ giá không sửa được niềm tin, mà neo giá thấp rất khó gỡ. Dùng ưu đãi "5 người đầu tiên 99k giữ vĩnh viễn" làm đòn bẩy thay vì hạ giá niêm yết. **Và đừng chốt giá trước khi phỏng vấn sale.**
+Hệ quả dây chuyền:
+- Sale **không sở hữu Fanpage, không sở hữu tài khoản ads** → đóng vĩnh viễn mọi đường
+  lấy hội thoại qua API (Meta Page Conversations API cần Page access token).
+- Lead là của công ty rót xuống, không phải tài sản của sale.
+- Sale cạnh tranh nhau bằng **chất lượng chăm sóc**, không phải số lượng lead.
 
-**USP giữ lại:** phát hiện lead Ảo · tiêu chí riêng chung cư VN · không cần OA/CRM/cài đặt · tool kèm khoá huấn luyện 10X
-**USP bị loại:** "chấm Nóng/Ấm/Lạnh" (trùng ~80% Roof AI) · "rẻ hơn tool US 20 lần"
+### Vì sao KHÔNG có đường tự động hoá nào cho Zalo cá nhân
+
+| Kênh | API đọc hội thoại | Đọc được lịch sử | Chi phí |
+|---|---|---|---|
+| Zalo OA | Có, chính thức | Có | **Chỉ mở từ gói Tăng trưởng 2,5tr/năm ≈ 208k/tháng** — đắt gần bằng giá bán |
+| Zalo cá nhân | Không có | **Không** (zca-js chỉ nghe tin nhắn mới) | 0đ nhưng **nguy cơ khoá tài khoản khách** |
+| FB Page | Có, miễn phí | Có | Vô dụng ở đây vì sale không có Page |
+
+**Quyết định: không nhúng thư viện Zalo không chính thức vào sản phẩm.** Được ít, mất nhiều:
+không lấy được tồn đọng mà vẫn gánh rủi ro khoá tài khoản cho chính người trả tiền.
+Đường còn lại cho bản sau: **tiện ích Chrome đọc Zalo Web** (chỉ đọc, không gửi) — ZChat,
+Zalo CRM, ZaX đang sống bằng đúng cơ chế đó, và **không cái nào chấm điểm lead**.
+
+### Công cụ nằm ở phút thứ 10, không phải phút 0 (phát hiện 15/09)
+
+Data sàn phát xuống cho sale **nhiều khi chỉ là số điện thoại trần**. Nghĩa là phễu thật:
+
+```
+Sàn phát N số điện thoại
+  → sale gọi hoặc nhắn TRƯỚC
+    → chỉ một phần chịu trả lời      ← hội thoại mới bắt đầu ở đây
+      → lúc này mới dán vào tool được
+```
+
+Ba hệ quả:
+
+1. **Khối lượng dán nhỏ hơn khối lượng lead rất nhiều.** 200 số nhưng chỉ vài chục hội thoại.
+   Nỗi lo "dán 200 lần thì ai làm" nhẹ hơn nhiều so với hình dung ban đầu.
+2. **Tool không giúp được khâu đau nhất của sale mới**: 200 số, gọi ai trước.
+   Và **đừng cố chấm số điện thoại trần** — một dãy số không mang tín hiệu ý định nào.
+   Bán "AI chấm điểm từ danh sách SĐT" là bán thuốc giả. Chỉ chấm được khi data có thêm cột
+   (nguồn, dự án đã đăng ký, câu hỏi để lại) — phải hỏi sale mới biết.
+3. **Phải tách hai luồng lead, USP "lead Ảo" chỉ đúng với một luồng:**
+
+| | Outbound — data sàn phát | Inbound — khách tự nhắn |
+|---|---|---|
+| Ai mở lời trước | Sale | Khách, từ bài đăng hoặc ads |
+| "Ảo" nghĩa là gì | Số sai, không nghe máy | **Môi giới dò giá, spam, lừa đảo** |
+| Chấm được khi nào | Chỉ sau khi khách chịu trả lời | Ngay từ tin nhắn đầu |
+| Ai ở luồng này | Sale mới, ăn data sàn | **Sale tự chủ 2–5 năm, tự đăng bài** |
+
+→ **Sản phẩm mạnh ở luồng INBOUND.** Chốt ICP về tệp sale tự chủ, không phải sale mới ăn data sàn.
+
+### Luật đang bẻ luồng outbound — và nó đứng về phía sản phẩm này
+
+- **Nghị định 91/2020:** gọi hoặc nhắn quảng cáo khi chưa được người nhận đồng ý → phạt 5–10 triệu;
+  gọi vào số trong Danh sách không quảng cáo → 80–100 triệu. Cá nhân bằng một nửa.
+- **Luật Bảo vệ dữ liệu cá nhân (91/2025/QH15), hiệu lực 01/01/2026:** mua bán dữ liệu cá nhân
+  phạt tới **10 lần khoản thu**, khung tối thiểu 3 tỷ; vi phạm khác tới 3 tỷ; cá nhân giảm 50%.
+
+Sale được phỏng vấn 14/09 tự nói: *"hạn chế gọi data vì hiện tại luật quy định khá khắt khe
+đối với các cuộc gọi spam"*. Đây không phải cảm giác của một người — đây là khung phạt.
+
+**Luồng outbound đang teo dần vì luật, luồng inbound sẽ chiếm tỷ trọng ngày càng lớn.**
+Đó đúng là luồng sản phẩm này phục vụ. Không phải may mắn — là xu hướng cấu trúc.
+
+### Bản đồ ba tầng người dùng
+
+| Tầng | Nỗi đau | Tiền | Cần |
+|---|---|---|---|
+| Sale mới 0–12 tháng | Được phát data lạnh, chạy đua trước khi hết lương cứng 4 tháng | Ít, **đau nhất** | Lọc lead |
+| Sale tự chủ 2–5 năm | Vừa tự chạy nguồn vừa chăm khách, không giữ nổi ngữ cảnh | Có | **Lọc + chân dung khách** |
+| TPKD / GĐKD / chủ sàn | Trí nhớ khách hàng đi theo sale nghỉ việc, vì nó nằm trong Zalo cá nhân của họ | Nhiều nhất | Chân dung + báo cáo đội |
+
+Bằng chứng thị trường: một tin tuyển của MICC Group tuyển 20 GĐKD + 30 TPKD + **200 CVKD**
+một đợt, lương cứng 8,5tr **chỉ 4 tháng**, "hỗ trợ marketing tới 100%", "cung cấp data khách hàng net".
+
+### Định vị mới — KHÔNG bán "chỗ lưu", bán "khỏi phải gõ"
+
+Phỏng vấn một sale lâu năm (đang làm chủ sàn) ngày 14/09: việc duy nhất bạn ấy tự nêu ra
+là cần tối ưu hơn — **"lưu thông tin data khách hàng đã từng chăm sóc/giao dịch"**.
+Việc tốn thời gian nhất là chăm sóc và xử lý tình huống, không phải tìm khách.
+
+Nhưng **Meey CRM** (ra mắt 07/2021) đã làm đúng việc lưu hồ sơ khách cho môi giới, và
+**hoàn toàn miễn phí**. Khảo sát của chính Meey Land: 97% môi giới vẫn dùng sổ tay hoặc
+Excel, 50% thường xuyên quên thông tin khách, 40% lỡ hẹn.
+
+> **Một CRM miễn phí có thương hiệu mà 97% vẫn dùng sổ tay — nghĩa là bức tường không
+> phải chỗ lưu, mà là công đoạn GÕ TAY.**
+
+Nên câu khẳng định của sản phẩm là: **"máy điền hồ sơ khách — từ hội thoại Zalo, trong 5 giây"**,
+không phải "nơi lưu hồ sơ khách". Meey là cái tủ; sản phẩm này là người bỏ hồ sơ vào tủ.
+Vì thế mỗi hồ sơ có nút **Chép** ra văn bản thuần để dán sang CRM sàn đang dùng —
+cố ý không đối đầu với CRM có sẵn.
+
+**NEXME** (nexme.com.vn, hệ thống MICC trang bị cho sale) là trợ lý AI tra **quỹ căn,
+tài liệu, chính sách** — dữ liệu SẢN PHẨM. Bổ trợ, không cạnh tranh: nó không biết gì về
+người đang nhắn tin với sale.
+
+### Hàng rào cạnh tranh — mỏng, phải biết
+
+Chỉ gồm ba thứ: (1) tốc độ ra trước, (2) chuyên sâu chung cư + phát hiện lead Ảo,
+(3) đọc được Zalo tiếng Việt viết tắt. Meey có vốn và có thể thêm trích xuất AI bất cứ lúc nào.
+Đủ cho 6–12 tháng, không phải lâu đài.
+
+**Giá:** niêm yết **249k/tháng**, gói 3 tháng 599k, free 30 lead đầu. Trên Polar đang đặt
+243.000đ (quy từ $9). Giữ nguyên, **và đừng chốt giá trước khi phỏng vấn thêm sale**.
+Neo giá trị bằng **phút gõ tiết kiệm được** (3–5 phút/khách × 40 khách), không bằng "chỗ lưu".
+
+**USP giữ lại:** máy tự điền hồ sơ từ hội thoại · phát hiện lead Ảo · tiêu chí riêng chung cư VN · không cần OA/CRM/cài đặt
+**USP bị loại:** "chấm Nóng/Ấm/Lạnh" (trùng ~80% Roof AI) · "nơi lưu hồ sơ khách" (Meey CRM làm miễn phí rồi)
 
 ## 5. Hai đường thu tiền — phân vai rõ
 
@@ -88,15 +218,26 @@ Trên Polar đã có: sản phẩm subscription theo tháng ($9) + một checkou
 
 ## 6. Việc còn lại, theo thứ tự đòn bẩy
 
-1. **Phỏng vấn 5 sale** ≥1 năm nghề đang chạy ads — *việc quan trọng nhất, vẫn chưa làm*.
-   Giả định lớn nhất chưa kiểm chứng: **sale có chịu dán từng hội thoại không, và có trả 249k không.**
-   Giờ đã có link chạy thật để họ bấm thử — hỏi bằng sản phẩm mạnh hơn hỏi bằng ý tưởng.
-   **Nếu ≤2/5 nói có → đổi ICP sang sàn có Zalo OA.** Phải biết trước Demo Day.
-2. **Hiệu chuẩn ngưỡng 9/6/3** bằng 30 lead đã biết kết quả. Ngưỡng hiện tại là suy luận, chưa có dữ liệu.
-3. **Ghép thanh toán vào sản phẩm.** Hàng rào = free 30 lead. Cái chìa: đếm trong trình duyệt (nhanh, không chặn được) hay license key (2–3 tiếng, chặn được ở máy chủ). Làm cách nhanh cho Demo Day, cách chắc trước Buổi 7.
-4. **Trỏ tên miền `huongai.com`** về Vercel + `support@huongai.com` (hết cảnh báo Polar). Đang vướng 401.
-5. **Nộp bù 25 điểm** Tuần 0 và Buổi 1.
-6. **Bài Demo Day** — video 90–120 giây, hạn 20/09.
+1. **Nộp video Pre-Demo Day trước 23:59 ngày 15/09** — vòng loại, không nộp là tự loại.
+   Kịch bản 120 giây nằm ở `docs/kich-ban-video-demo-day.md`.
+2. **Phỏng vấn thêm 3–4 sale, chia theo thâm niên** — *vẫn là việc quan trọng nhất*.
+   Mới có 1 mẫu, và người đó là **chủ sàn**, không đại diện cho sale tuyến đầu.
+   Cần ít nhất 1 sale mới vào nghề (<1 năm) và 1 sale 2–3 năm để đối chứng.
+   Bộ câu hỏi hiện tại còn thiếu hai câu quyết định:
+   *"Kể lần gần nhất việc đó làm anh/chị mất một khách"* (đo cường độ đau) và
+   *"Anh/chị đã bỏ tiền cho công cụ nào chưa, bao nhiêu"* (đo khả năng chi trả).
+3. **Bài Buổi 7 — "Đưa ra cho người lạ dùng thật", hạn 20:00 ngày 17/09.**
+   Dùng lại chính dữ liệu 3–5 sale đã cho dùng thử. Một việc, hai bài.
+4. **Chế độ "Chưa nhắn gì cả"** — lấp lỗ hổng phút 0 mà không bịa.
+   Tool không chấm được số điện thoại trần, nhưng giúp được ở chỗ khác: **nhắn gì để khách
+   trả lời, và trả lời ra đúng thứ cần chấm**. Sản phẩm đã có sẵn 80%: hội thoại dưới 25 từ
+   đã trả về 3 câu nên hỏi, và chân dung đã sinh `cauNenHoi` từ tiêu chí dưới 2 điểm.
+   Chỉ thiếu một cửa vào: nhập tên/dự án/nguồn → trả ra tin nhắn mở đầu + 3 câu cần cài.
+   Khép kín vòng: mở đầu → khách trả lời → dán → chấm + hồ sơ → câu hỏi tiếp.
+5. **Hiệu chuẩn ngưỡng 9/6/3** bằng 30 lead đã biết kết quả. Ngưỡng hiện tại là suy luận.
+6. **Bài Buổi 8 — một agent làm thay một việc lặp lại, hạn 20:00 ngày 20/09.**
+7. **Ghép thanh toán vào sản phẩm.** Hàng rào = free 30 lead.
+8. **Trỏ tên miền `huongai.com`** về Vercel. Đang vướng 401.
 
 ## 7. Hạn chế đã biết của sản phẩm
 
@@ -108,3 +249,6 @@ Trên Polar đã có: sản phẩm subscription theo tháng ($9) + một checkou
 | Chỉ nhận văn bản dán, chưa nhận ảnh chụp | Bản sau |
 | Cảnh báo "hai lớp lệch nhau" hiện cả khi hai lớp cùng kết luận Ảo | Chỉ nên hiện khi *phân loại* khác nhau |
 | `ANTHROPIC_API_KEY` trên Vercel chỉ có ở Production | Thêm Preview trước Buổi 7 |
+| Hồ sơ chỉ nằm trên một máy, xoá dữ liệu duyệt web là mất | Có nút Xuất JSON; bản sau làm tài khoản để đồng bộ |
+| Vẫn phải dán tay từng hội thoại | Bản sau: tiện ích Chrome đọc Zalo Web (chỉ đọc), hoặc nhận ảnh chụp màn hình |
+| Chân dung chưa đọc được tên dự án và khu vực | Cần danh mục dự án để đối chiếu, chưa có |

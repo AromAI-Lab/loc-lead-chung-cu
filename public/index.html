@@ -17,7 +17,12 @@
   </div>
 </header>
 
-<main class="wrap">
+<nav class="tabs wrap" aria-label="Chuyển màn">
+  <button type="button" class="tab on" data-man="cham">Chấm lead</button>
+  <button type="button" class="tab" data-man="hoso">Hồ sơ đã lưu <span class="dem" id="demHoSo">0</span></button>
+</nav>
+
+<main class="wrap" id="manCham">
 
   <section class="card">
     <div class="card-head">
@@ -77,6 +82,26 @@ K: nhà anh ở. hai vợ chồng chốt rồi, tháng 12 hết hợp đồng th
 
   <section id="ketQua" hidden></section>
 
+  <section class="card" id="khuChanDung" hidden>
+    <div class="card-head">
+      <h2>3 · Chân dung khách — máy tự điền, bạn không gõ chữ nào</h2>
+    </div>
+    <div id="chanDungThongTin"></div>
+    <div id="chanDungLuu"></div>
+  </section>
+
+</main>
+
+<main class="wrap" id="manHoSo" hidden>
+  <section class="card">
+    <div class="card-head">
+      <h2>Hồ sơ khách đã lưu</h2>
+      <button type="button" class="link" id="xuatJSON">Xuất JSON để sao lưu</button>
+    </div>
+    <input type="search" id="oTimKiem" placeholder="Tìm theo tên, nhu cầu, mốc thời gian, ghi chú…">
+    <div id="dsHoSo"></div>
+    <p class="phap-ly">Hồ sơ nằm <b>trong trình duyệt trên máy bạn</b>, không gửi lên máy chủ nào. Hội thoại gốc không được lưu — chỉ giữ các trường đã rút gọn ở trên. Xoá dữ liệu duyệt web sẽ mất hồ sơ, nên thỉnh thoảng bấm <b>Xuất JSON</b> để sao lưu.</p>
+  </section>
 </main>
 
 <footer class="wrap chan">

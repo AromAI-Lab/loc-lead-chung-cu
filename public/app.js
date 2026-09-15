@@ -1,6 +1,8 @@
 import { anDanhHoa, tongSoDaChe } from '/lib/anonymize.js';
 import { chamDiem } from '/lib/criteria.js';
 import { HOI_THOAI_MAU } from '/lib/samples.js';
+import { trichChanDung } from '/lib/profile.js';
+import * as kho from '/lib/store.js';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) =>
@@ -42,6 +44,7 @@ async function chay() {
     };
     const luat = chamDiem(sach, coTay);
     hienKetQua(luat, null);
+    dungChanDung(sach, luat, null, coTay);
 
     /* Bước 3 — lớp AI, chỉ khi người dùng bật */
     if ($('dungAI').checked && luat.duLieuDu) {
@@ -57,6 +60,7 @@ async function chay() {
         ai = { aiTat: true, lyDo: 'Không kết nối được tới máy chủ. Kết quả đến từ lớp luật cứng.' };
       }
       hienKetQua(luat, ai);
+      capNhatPhanAI(ai);
     }
   } finally {
     nut.disabled = false;
@@ -152,4 +156,235 @@ function hienKetQua(luat, ai) {
 
   khu.innerHTML = html;
   khu.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   CHÂN DUNG KHÁCH VÀ KHO HỒ SƠ
+
+   Vì sao phần này tồn tại: chấm điểm trả lời "gọi ai trước", chân dung trả lời
+   "ba tuần nữa mình đang đứng ở đâu với người này". Thứ sale phải trả tiền
+   không phải chỗ lưu — chỗ lưu thì miễn phí đầy — mà là việc KHÔNG PHẢI GÕ.
+   ══════════════════════════════════════════════════════════════════ */
+
+let chanDungHienTai = null;
+
+const NGUON_LEAD = ['Data sàn giao', 'Tự đăng bài', 'Khách giới thiệu', 'Quảng cáo công ty', 'Khác'];
+
+function dong(nhan, giaTri) {
+  if (giaTri === '' || giaTri == null || (Array.isArray(giaTri) && !giaTri.length)) {
+    return `<tr><td class="nhan">${esc(nhan)}</td><td class="trong">— chưa có trong hội thoại</td></tr>`;
+  }
+  const v = Array.isArray(giaTri) ? giaTri.join(' · ') : giaTri;
+  return `<tr><td class="nhan">${esc(nhan)}</td><td>${esc(v)}</td></tr>`;
+}
+
+function veThongTinChanDung() {
+  const c = chanDungHienTai;
+  if (!c) return;
+
+  let html = `<table class="cd">
+    ${dong('Nhu cầu', c.nhuCau)}
+    ${dong('Loại căn', c.loaiCan)}
+    ${dong('Diện tích', c.dienTich)}
+    ${dong('Ngân sách khách', c.nganSach)}
+    ${dong('Tài chính', c.taiChinh)}
+    ${dong('Người quyết', c.nguoiQuyet)}
+    ${dong('Lý do mua', c.lyDoMua)}
+    ${dong('Mốc thời gian', c.mocThoiGian)}
+    ${dong('Đã đi xem nơi khác', c.daDiXem ? 'Rồi' : '')}
+    ${dong('Đang quan tâm', c.quanTam)}
+  </table>`;
+
+  if (c.vuongMac.length) {
+    html += `<div class="canh-bao"><b>Còn thiếu / cần lưu ý</b><ul class="gon">` +
+      c.vuongMac.map((v) => `<li>${esc(v)}</li>`).join('') + '</ul></div>';
+  }
+  if (c.cauNenHoi.length) {
+    html += `<div class="viec"><b>Câu nên hỏi tiếp để lấp chỗ trống</b><ul class="gon">` +
+      c.cauNenHoi.map((v) => `<li>${esc(v)}</li>`).join('') + '</ul></div>';
+  }
+  if (c.tinNhanGoiY) {
+    html += `<div class="viec"><b>Tin nhắn AI gợi ý gửi tiếp</b>${esc(c.tinNhanGoiY)}</div>`;
+  }
+
+  $('chanDungThongTin').innerHTML = html;
+}
+
+function veFormLuu() {
+  $('chanDungLuu').innerHTML = `
+    <div class="cd-form">
+      <div class="row">
+        <label>Đặt tên để sau này tìm lại
+          <input type="text" id="cdTen" maxlength="60" placeholder="VD: Anh Tuấn 2PN Vinhomes">
+        </label>
+        <label>Nguồn lead
+          <select id="cdNguon">
+            <option value="">— chọn —</option>
+            ${NGUON_LEAD.map((n) => `<option value="${esc(n)}">${esc(n)}</option>`).join('')}
+          </select>
+        </label>
+      </div>
+      <label class="rong">Ghi chú riêng của bạn
+        <input type="text" id="cdGhiChu" maxlength="200" placeholder="Điều máy không đọc được: giọng nói, thái độ, hẹn gì…">
+      </label>
+      <div class="hanh-dong">
+        <button type="button" id="cdLuu" class="chinh">Lưu hồ sơ khách</button>
+        <span class="bao" id="cdBao"></span>
+      </div>
+    </div>`;
+
+  $('cdLuu').addEventListener('click', () => {
+    if (!chanDungHienTai) return;
+    const hoSo = {
+      ...chanDungHienTai,
+      ten: $('cdTen').value.trim(),
+      nguon: $('cdNguon').value,
+      ghiChu: $('cdGhiChu').value.trim()
+    };
+    const daLuu = kho.luu(hoSo);
+    const bao = $('cdBao');
+    if (daLuu) {
+      chanDungHienTai = daLuu;   // giữ id để bấm lần nữa là cập nhật, không tạo bản trùng
+      bao.innerHTML = 'Đã lưu. <button type="button" class="link" data-man="hoso">Xem hồ sơ đã lưu</button>';
+      bao.className = 'bao ok';
+      capNhatDem();
+      noiCacNutChuyenMan();
+    } else {
+      bao.textContent = 'Trình duyệt không cho lưu (cửa sổ ẩn danh hoặc bộ nhớ đầy). Bấm Xuất JSON để giữ dữ liệu.';
+      bao.className = 'bao loi';
+    }
+  });
+}
+
+function dungChanDung(sach, luat, ai, coTay) {
+  if (!luat.duLieuDu) { $('khuChanDung').hidden = true; chanDungHienTai = null; return; }
+  chanDungHienTai = trichChanDung(sach, luat, ai, coTay);
+  $('khuChanDung').hidden = false;
+  veThongTinChanDung();
+  veFormLuu();
+}
+
+function capNhatPhanAI(ai) {
+  if (!chanDungHienTai || !ai || ai.aiTat) return;
+  chanDungHienTai.tinNhanGoiY = ai.tinNhanGoiY || '';
+  chanDungHienTai.diemMuChinh = ai.diemMuChinh || '';
+  chanDungHienTai.diemAI = ai.tongDiem ?? null;
+  veThongTinChanDung();   // form giữ nguyên, không xoá chữ người dùng đang gõ
+}
+
+/* ─────────── Màn hồ sơ đã lưu ─────────── */
+
+function capNhatDem() {
+  $('demHoSo').textContent = kho.demHoSo();
+}
+
+function veDanhSach() {
+  const tuKhoa = $('oTimKiem').value;
+  const ds = kho.xepUuTien(kho.timKiem(kho.danhSach(), tuKhoa));
+  const khu = $('dsHoSo');
+
+  if (!ds.length) {
+    khu.innerHTML = kho.demHoSo() === 0
+      ? '<p class="trong-bang">Chưa có hồ sơ nào. Chấm một hội thoại ở tab <b>Chấm lead</b> rồi bấm <b>Lưu hồ sơ khách</b>.</p>'
+      : '<p class="trong-bang">Không có hồ sơ nào khớp từ khoá này.</p>';
+    return;
+  }
+
+  khu.innerHTML = ds.map((x) => `
+    <article class="hs">
+      <div class="hs-dau">
+        <span class="huy ${esc(x.phanLoai)}">${esc(x.phanLoai)}</span>
+        <b class="hs-ten">${esc(x.ten || 'Khách chưa đặt tên')}</b>
+        <span class="hs-diem">${x.diem}/12</span>
+        <button type="button" class="link" data-chep="${esc(x.id)}">Chép</button>
+        <button type="button" class="link do" data-xoa="${esc(x.id)}">Xoá</button>
+      </div>
+      <div class="hs-than">
+        ${[x.nhuCau, x.loaiCan, x.nganSach, x.mocThoiGian, x.nguon]
+          .filter((v) => v && v !== 'Chưa rõ').map((v) => `<span class="vien-nho">${esc(v)}</span>`).join('')}
+      </div>
+      ${x.ghiChu ? `<p class="hs-ghi">${esc(x.ghiChu)}</p>` : ''}
+      ${x.vuongMac && x.vuongMac.length ? `<p class="hs-thieu">Còn thiếu: ${esc(x.vuongMac.join(' · '))}</p>` : ''}
+      <p class="hs-ngay">Chấm lúc ${new Date(x.lanChamCuoi).toLocaleString('vi-VN')}</p>
+    </article>`).join('');
+
+  khu.querySelectorAll('[data-chep]').forEach((b) => {
+    b.addEventListener('click', async () => {
+      const hs = kho.danhSach().find((x) => x.id === b.dataset.chep);
+      if (!hs) return;
+      try {
+        await navigator.clipboard.writeText(thanhVanBan(hs));
+        b.textContent = 'Đã chép';
+        setTimeout(() => { b.textContent = 'Chép'; }, 1600);
+      } catch {
+        b.textContent = 'Không chép được';
+      }
+    });
+  });
+
+  khu.querySelectorAll('[data-xoa]').forEach((b) => {
+    b.addEventListener('click', () => {
+      kho.xoa(b.dataset.xoa);
+      capNhatDem();
+      veDanhSach();
+    });
+  });
+}
+
+function chuyenMan(ten) {
+  $('manCham').hidden = ten !== 'cham';
+  $('manHoSo').hidden = ten !== 'hoso';
+  document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('on', t.dataset.man === ten));
+  if (ten === 'hoso') veDanhSach();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function noiCacNutChuyenMan() {
+  document.querySelectorAll('[data-man]').forEach((b) => {
+    if (b.dataset.daNoi) return;
+    b.dataset.daNoi = '1';
+    b.addEventListener('click', () => chuyenMan(b.dataset.man));
+  });
+}
+
+$('oTimKiem').addEventListener('input', veDanhSach);
+
+$('xuatJSON').addEventListener('click', () => {
+  const blob = new Blob([kho.xuatJSON()], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `ho-so-khach-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+noiCacNutChuyenMan();
+capNhatDem();
+
+/**
+ * Đổi hồ sơ thành văn bản thuần để dán sang CRM của sàn, Excel, hay sổ tay.
+ * Chủ ý không đối đầu với CRM có sẵn: sản phẩm này NẠP DỮ LIỆU cho cái tủ
+ * người ta đang dùng, chứ không đòi thay cái tủ đó.
+ */
+function thanhVanBan(x) {
+  const d = [];
+  const them = (nhan, v) => { if (v && v !== 'Chưa rõ') d.push(`${nhan}: ${Array.isArray(v) ? v.join(', ') : v}`); };
+  them('Khách', x.ten || 'chưa đặt tên');
+  them('Xếp loại', `${x.phanLoai} (${x.diem}/12)`);
+  them('Nguồn', x.nguon);
+  them('Nhu cầu', x.nhuCau);
+  them('Loại căn', x.loaiCan);
+  them('Diện tích', x.dienTich);
+  them('Ngân sách', x.nganSach);
+  them('Tài chính', x.taiChinh);
+  them('Người quyết', x.nguoiQuyet);
+  them('Lý do mua', x.lyDoMua);
+  them('Mốc thời gian', x.mocThoiGian);
+  them('Đã đi xem nơi khác', x.daDiXem ? 'Rồi' : '');
+  them('Đang quan tâm', x.quanTam);
+  them('Còn thiếu', x.vuongMac);
+  them('Nên hỏi tiếp', x.cauNenHoi);
+  them('Ghi chú', x.ghiChu);
+  them('Chấm lúc', new Date(x.lanChamCuoi).toLocaleString('vi-VN'));
+  return d.join('\n');
 }

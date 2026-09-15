@@ -332,4 +332,15 @@ export function chamDiem(vanBan, coTay = {}) {
   };
 }
 
+/**
+ * Xuất bộ từ khoá để module chân dung khách (profile.js) dùng lại.
+ * Cố ý không sao chép sang file khác: một chỗ sửa, cả hai nơi đổi theo.
+ */
+export const TU_KHOA = Object.freeze({
+  TIEN, VAY, VAY_SAU, VON,
+  QUYET_MANH, QUYET_VUA, QUYET_HO,
+  HOI_CU_THE, HOI_CHUNG, LY_DO,
+  DA_XEM, MOC_TG, MO_HO
+});
+
 export { HANH_DONG };
