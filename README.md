@@ -103,6 +103,30 @@ Sản phẩm xử lý theo ba nguyên tắc:
 
 Thứ được **giữ lại** là giá tiền, diện tích, số tầng — vì đó là căn cứ chấm điểm, và bản thân chúng không định danh ai.
 
+### Nói rõ dữ liệu đi đâu, ngay trên giao diện
+
+Khối số 2 có một mục mở ra được: **"Dữ liệu đã che đi tới đâu, ai giữ, giữ bao lâu"** —
+ghi thẳng đường đi (trình duyệt → máy chủ công cụ → API Anthropic), kèm **một ví dụ trước/sau**
+cho thấy đúng thứ rời khỏi máy trông như thế nào, việc dữ liệu không được dùng huấn luyện mô hình,
+và việc trang không có công cụ theo dõi nào.
+
+Ví dụ trước/sau là phần quan trọng nhất của khối này. Nỗi lo thật của người dùng không phải
+"bên kia giữ dữ liệu bao lâu" mà "danh sách khách của tôi có bị lấy mất không". Câu trả lời
+đúng là: **thứ đi ra không phải danh sách khách hàng** — số điện thoại, email, tên đã bị bỏ
+trước khi có kết nối mạng, nên không có gì trong đó để liên lạc lại với khách.
+
+Cạnh ô *Chấm thêm bằng AI* có một dòng nói rõ: **bỏ chọn thì không dữ liệu nào rời khỏi máy** —
+công cụ vẫn chấm điểm, vẫn bắt lead ảo, vẫn dựng hồ sơ bằng lớp luật cứng.
+
+Cũng nói thẳng chỗ **chưa hoàn hảo**: bộ che chạy theo mẫu chữ chứ không phải AI, nên tên riêng
+không đi kèm xưng hô có thể còn sót; và ô *Đặt tên* với *Ghi chú riêng* do người dùng tự gõ nên
+không đi qua bộ che.
+
+Minh bạch làm tăng niềm tin chứ không giảm — nhất là với sale bất động sản, nhóm bị lừa nhiều
+và quen soi kỹ.
+
+Người dùng xoá dữ liệu của mình bất cứ lúc nào: nút **Xoá tất cả** ở màn Hồ sơ, xác nhận hai bước.
+
 ## 5. Khoá API nằm ở đâu
 
 Khoá **chỉ** được đọc trong `api/score.js`, chạy phía máy chủ.
@@ -124,7 +148,7 @@ public/
     anonymize.js      Ẩn danh hoá. Dùng chung cho trình duyệt và máy chủ
     criteria.js       Động cơ chấm điểm — 2 trục, 4 tiêu chí, 7 cờ Ảo
     profile.js        Trích chân dung khách từ hội thoại. Không giữ lại hội thoại gốc
-    store.js          Kho hồ sơ trong localStorage: lưu, tìm, xếp ưu tiên, xuất JSON
+    store.js          Kho hồ sơ trong localStorage: lưu, tìm, xếp ưu tiên, xuất JSON, xoá sạch
     samples.js        Hội thoại mẫu để thử ngay
 api/
   score.js            Hàm serverless. NƠI DUY NHẤT đọc khoá API
@@ -133,7 +157,7 @@ docs/
 test/
   fixtures.js         6 hội thoại thật, mỗi ca một loại
   profile-tests.js    Kiểm thử chân dung khách và kho hồ sơ
-  run-tests.js        53 phép kiểm thử
+  run-tests.js        59 phép kiểm thử
 dev-server.js         Máy chủ chạy thử trên máy cá nhân
 ```
 
@@ -148,7 +172,7 @@ dev-server.js         Máy chủ chạy thử trên máy cá nhân
 ## 7. Chạy trên máy
 
 ```bash
-npm test          # 53 phép kiểm thử, không cần mạng, không cần khoá
+npm test          # 59 phép kiểm thử, không cần mạng, không cần khoá
 node dev-server.js  # mở http://localhost:3000
 ```
 

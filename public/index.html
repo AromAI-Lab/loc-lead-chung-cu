@@ -68,6 +68,7 @@ K: nhà anh ở. hai vợ chồng chốt rồi, tháng 12 hết hợp đồng th
       <button id="chay" class="chinh">Ẩn danh hoá &amp; chấm điểm</button>
       <label class="ai-toggle"><input type="checkbox" id="dungAI" checked> Chấm thêm bằng AI</label>
     </div>
+    <p class="ghi-chu nho-hon">Bỏ chọn ô này thì <b>không một dữ liệu nào rời khỏi máy bạn</b> — công cụ vẫn chấm điểm, vẫn bắt lead ảo, vẫn dựng hồ sơ khách bằng bộ luật chạy ngay trong trình duyệt.</p>
   </section>
 
   <section class="card" id="khuAnDanh" hidden>
@@ -77,7 +78,37 @@ K: nhà anh ở. hai vợ chồng chốt rồi, tháng 12 hết hợp đồng th
       <summary>Xem đúng nội dung được gửi đi</summary>
       <pre id="banSach"></pre>
     </details>
-    <p class="phap-ly">Số điện thoại, email, số tài khoản, số giấy tờ và tên riêng được thay bằng nhãn <b>ngay trên máy bạn</b>, trước khi bất kỳ dữ liệu nào rời khỏi trình duyệt. Máy chủ che lại lần thứ hai. Hội thoại gốc không được lưu ở đâu cả.</p>
+    <div class="canh-bao">Bộ che chạy theo mẫu chữ, không phải AI, nên <b>không hoàn hảo</b>. Tên riêng không đi kèm xưng hô — ví dụ "Tuấn nói tháng 12 dọn vào" — có thể còn sót. Bấm <b>Xem đúng nội dung được gửi đi</b> ở trên để soát trước, mất 5 giây.</div>
+
+    <p class="phap-ly">Số điện thoại, email, số tài khoản, số giấy tờ, địa chỉ nhà và tên riêng được thay bằng nhãn <b>ngay trên máy bạn</b>, trước khi bất kỳ dữ liệu nào rời khỏi trình duyệt. Máy chủ che lại lần thứ hai, không tin vào trình duyệt. Hội thoại gốc không được lưu ở đâu cả.</p>
+
+    <details class="minh-bach">
+      <summary>Dữ liệu đã che đi tới đâu</summary>
+      <div class="mb-body">
+        <p>Khi bạn bật <i>Chấm thêm bằng AI</i>, đoạn hội thoại <b>đã che</b> đi theo đúng một đường:</p>
+        <p class="duong-di">trình duyệt của bạn → máy chủ của công cụ này (Vercel) → API của Anthropic</p>
+
+        <p><b>Thứ được gửi đi trông như thế nào</b></p>
+        <div class="truoc-sau">
+          <div><span class="nhan-ts">Bạn dán vào</span>
+            <code>K: Chào em, anh Tuấn 0912345678 xem tin căn 2PN 3,2 tỷ</code></div>
+          <div><span class="nhan-ts">Thứ rời khỏi máy bạn</span>
+            <code>K: Chào em, anh [TÊN] [SỐ ĐIỆN THOẠI] xem tin căn 2PN 3,2 tỷ</code></div>
+        </div>
+        <p>Số điện thoại, email, tên riêng, số tài khoản, số giấy tờ, địa chỉ nhà đã bị bỏ đi
+        <b>trước khi</b> có bất kỳ kết nối mạng nào. Cái đi ra là một đoạn chat nói về căn hộ —
+        <b>không phải danh sách khách hàng của bạn</b>, và không có gì trong đó để liên lạc lại với khách.
+        Bấm <i>Xem đúng nội dung được gửi đi</i> ở trên là thấy tận mắt, không phải tin lời ai.</p>
+
+        <ul class="gon">
+          <li><b>Không dùng để huấn luyện mô hình.</b> Đây là mặc định của API Anthropic, trừ khi khách hàng cho phép rõ ràng.</li>
+          <li><b>Công cụ này không ghi nội dung hội thoại vào nhật ký</b> ở bất kỳ đâu, và không lưu lại bản gốc.</li>
+          <li><b>Không có công cụ theo dõi nào</b> trong trang: không Google Analytics, không pixel quảng cáo, không script bên thứ ba. Toàn bộ trang chỉ có đúng một lời gọi mạng, chính là lời gọi chấm điểm ở trên.</li>
+          <li><b>Hồ sơ khách bạn lưu thì không đi đâu cả.</b> Lớp AI chỉ nhận đoạn hội thoại đã che, không nhận hồ sơ.</li>
+        </ul>
+        <p class="nho-hon">Nói rõ chỗ này vì Luật Bảo vệ dữ liệu cá nhân có hiệu lực từ 01/01/2026, và vì bạn có quyền biết dữ liệu khách của mình đi đâu. Không muốn gửi đi thì bỏ chọn ô <i>Chấm thêm bằng AI</i> — công cụ vẫn chạy đủ.</p>
+      </div>
+    </details>
   </section>
 
   <section id="ketQua" hidden></section>
@@ -96,11 +127,16 @@ K: nhà anh ở. hai vợ chồng chốt rồi, tháng 12 hết hợp đồng th
   <section class="card">
     <div class="card-head">
       <h2>Hồ sơ khách đã lưu</h2>
-      <button type="button" class="link" id="xuatJSON">Xuất JSON để sao lưu</button>
+      <div class="nut-phai">
+        <button type="button" class="link" id="xuatJSON">Xuất JSON để sao lưu</button>
+        <button type="button" class="link do" id="xoaTatCa">Xoá tất cả</button>
+      </div>
     </div>
     <input type="search" id="oTimKiem" placeholder="Tìm theo tên, nhu cầu, mốc thời gian, ghi chú…">
     <div id="dsHoSo"></div>
-    <p class="phap-ly">Hồ sơ nằm <b>trong trình duyệt trên máy bạn</b>, không gửi lên máy chủ nào. Hội thoại gốc không được lưu — chỉ giữ các trường đã rút gọn ở trên. Xoá dữ liệu duyệt web sẽ mất hồ sơ, nên thỉnh thoảng bấm <b>Xuất JSON</b> để sao lưu.</p>
+    <p class="phap-ly">Hồ sơ nằm <b>trong trình duyệt trên máy bạn</b> và không bao giờ được gửi lên máy chủ nào — kể cả khi bạn bật lớp AI, vì lớp AI chỉ nhận đoạn hội thoại đã che, không nhận hồ sơ. Hội thoại gốc không được lưu, chỉ giữ các trường đã rút gọn.<br><br>
+      <b>Lưu ý:</b> ô <i>Đặt tên</i> và <i>Ghi chú riêng</i> là do bạn tự gõ nên <b>không đi qua bộ che</b>. Gõ số điện thoại thật vào đó thì nó nằm nguyên trong máy bạn — vẫn không gửi đi đâu, nhưng cũng không được che.<br><br>
+      Xoá dữ liệu duyệt web sẽ mất hồ sơ, nên thỉnh thoảng bấm <b>Xuất JSON</b> để sao lưu.</p>
   </section>
 </main>
 

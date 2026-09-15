@@ -10,6 +10,7 @@ import { chamDiem } from '../public/lib/criteria.js';
 import { anDanhHoa } from '../public/lib/anonymize.js';
 import { trichChanDung } from '../public/lib/profile.js';
 import { DANH_SACH_TRUONG, xepUuTien, timKiem } from '../public/lib/store.js';
+import * as kho from '../public/lib/store.js';
 import { CA_KIEM_THU } from './fixtures.js';
 
 const dung = (ten) => CA_KIEM_THU.find((c) => c.ten.startsWith(ten));
@@ -99,5 +100,43 @@ export function kiemThuChanDung(bao) {
     bao(timKiem(ds, 'de o').length === 1, 'Tìm không dấu khớp cả trường nhu cầu');
     bao(timKiem(ds, '').length === 4, 'Từ khoá rỗng trả về tất cả');
     bao(timKiem(ds, 'xyzkhongco').length === 0, 'Từ khoá không khớp trả về rỗng');
+  }
+}
+
+/**
+ * Kiểm thử phần xoá sạch kho. Tách riêng vì cần giả lập localStorage —
+ * môi trường Node không có sẵn đối tượng này.
+ */
+export function kiemThuXoaTatCa(bao) {
+  const goc = globalThis.localStorage;
+  const bo = new Map();
+  globalThis.localStorage = {
+    getItem: (k) => (bo.has(k) ? bo.get(k) : null),
+    setItem: (k, v) => bo.set(k, String(v)),
+    removeItem: (k) => bo.delete(k)
+  };
+
+  try {
+    const m = kho;
+    m.luu({ ten: 'Khách A', phanLoai: 'NÓNG', diem: 10, lanChamCuoi: '2026-09-15' });
+    m.luu({ ten: 'Khách B', phanLoai: 'ẤM', diem: 7, lanChamCuoi: '2026-09-15' });
+    bao(m.demHoSo() === 2, 'Lưu được 2 hồ sơ');
+
+    const truoc = m.danhSach()[0].id;
+    bao(typeof truoc === 'string' && truoc.length > 3, 'Mỗi hồ sơ có id riêng');
+
+    m.xoaTatCa();
+    bao(m.demHoSo() === 0, 'Xoá tất cả làm kho về rỗng');
+    bao(Array.isArray(m.danhSach()), 'Kho rỗng vẫn trả về mảng, không làm hỏng giao diện');
+
+    m.luu({ ten: 'Khách C', phanLoai: 'LẠNH', diem: 4, lanChamCuoi: '2026-09-15' });
+    bao(m.demHoSo() === 1, 'Lưu lại được sau khi xoá sạch');
+
+    const hs = m.danhSach()[0];
+    const la = m.luu({ ...hs, hoiThoaiGoc: 'K: day la hoi thoai that cua khach' });
+    bao(!('hoiThoaiGoc' in (la || {})), 'BẤT BIẾN — danh sách trắng chặn trường lạ, hội thoại gốc không lọt vào kho');
+  } finally {
+    if (goc === undefined) delete globalThis.localStorage;
+    else globalThis.localStorage = goc;
   }
 }

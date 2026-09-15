@@ -136,3 +136,20 @@ input[type=text],input[type=search],select{width:100%;padding:9px;border:1px sol
   table.cd td.nhan{width:120px}
   .tabs{padding:0 16px}
 }
+
+/* ─────────── Minh bạch dữ liệu ─────────── */
+.ghi-chu.nho-hon,p.nho-hon{font-size:13px;color:var(--nhat);line-height:1.55}
+.minh-bach{margin-top:12px;border-top:1px solid var(--vien);padding-top:12px}
+.minh-bach summary{color:var(--lanh)}
+.mb-body{padding-top:10px;font-size:14px;color:var(--nhat)}
+.mb-body p{margin:0 0 10px}
+.duong-di{font:13px/1.6 ui-monospace,Menlo,monospace;background:#fcfcfb;border:1px solid var(--vien);
+  border-radius:8px;padding:10px;color:var(--muc);overflow-x:auto}
+.nut-phai{display:flex;gap:14px;flex-wrap:wrap}
+.link.do{color:var(--nong)}
+.truoc-sau{display:flex;flex-direction:column;gap:10px;margin:0 0 12px}
+.truoc-sau>div{display:flex;flex-direction:column;gap:5px}
+.nhan-ts{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--nhat);font-weight:600}
+.truoc-sau code{display:block;background:#fcfcfb;border:1px solid var(--vien);border-radius:8px;
+  padding:10px;font:13px/1.55 ui-monospace,Menlo,monospace;color:var(--muc);overflow-x:auto;white-space:pre-wrap}
+.truoc-sau>div:last-child code{border-color:#bcd9c7;background:#f5faf7}

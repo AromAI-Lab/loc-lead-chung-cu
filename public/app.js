@@ -349,6 +349,25 @@ function noiCacNutChuyenMan() {
 
 $('oTimKiem').addEventListener('input', veDanhSach);
 
+/* Xoá tất cả — xác nhận hai bước ngay trên nút, không dùng hộp thoại trình duyệt
+   vì hộp thoại hay bị bấm nhầm theo phản xạ. */
+let choXacNhanXoa = null;
+$('xoaTatCa').addEventListener('click', () => {
+  const b = $('xoaTatCa');
+  if (!kho.demHoSo()) { b.textContent = 'Chưa có hồ sơ nào'; setTimeout(() => { b.textContent = 'Xoá tất cả'; }, 1600); return; }
+  if (!choXacNhanXoa) {
+    b.textContent = `Bấm lần nữa để xoá ${kho.demHoSo()} hồ sơ`;
+    choXacNhanXoa = setTimeout(() => { b.textContent = 'Xoá tất cả'; choXacNhanXoa = null; }, 4000);
+    return;
+  }
+  clearTimeout(choXacNhanXoa);
+  choXacNhanXoa = null;
+  kho.xoaTatCa();
+  b.textContent = 'Xoá tất cả';
+  capNhatDem();
+  veDanhSach();
+});
+
 $('xuatJSON').addEventListener('click', () => {
   const blob = new Blob([kho.xuatJSON()], { type: 'application/json' });
   const a = document.createElement('a');

@@ -6,7 +6,7 @@ import { chamDiem } from '../public/lib/criteria.js';
 import { anDanhHoa } from '../public/lib/anonymize.js';
 import { CA_KIEM_THU } from './fixtures.js';
 import { kiemThuWebhook } from './webhook-tests.js';
-import { kiemThuChanDung } from './profile-tests.js';
+import { kiemThuChanDung, kiemThuXoaTatCa } from './profile-tests.js';
 
 let dat = 0;
 let truot = 0;
@@ -64,6 +64,7 @@ console.log('\n=== 3. Bất biến ===\n');
 
 console.log('\n=== 4. Chân dung khách và kho hồ sơ ===\n');
 kiemThuChanDung(bao);
+kiemThuXoaTatCa(bao);
 
 console.log('\n=== 5. Chữ ký webhook Polar ===\n');
 kiemThuWebhook(bao);

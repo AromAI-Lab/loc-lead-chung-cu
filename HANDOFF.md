@@ -63,6 +63,50 @@ Bộ tiêu chí đầy đủ: `docs/scoring-criteria.md`
 2. **Hội thoại dưới 25 từ → từ chối chấm**, trả về 3 câu nên hỏi trước. Thà nói "chưa đủ dữ liệu" còn hơn chấm bừa.
 3. **Ẩn danh hoá hai lần** — lần một trong trình duyệt (người dùng xem được), lần hai ở máy chủ. Không lưu hội thoại gốc.
 
+### Minh bạch dữ liệu (thêm 15/09)
+
+Sản phẩm có **hai luồng dữ liệu**, và phải nói tách bạch, đừng gộp:
+
+| Luồng | Có rời khỏi máy sale không |
+|---|---|
+| **Hồ sơ đã lưu** (localStorage) | ❌ Không bao giờ. Lớp AI chỉ nhận hội thoại đã che, không nhận hồ sơ |
+| **Lớp AI** (`/api/score`) | ✅ Có — hội thoại **đã ẩn danh hoá** đi tới API Anthropic |
+
+Toàn bộ front-end chỉ có **đúng một lời gọi mạng**: `POST /api/score`.
+Không analytics, không pixel, không script bên thứ ba. Kiểm chứng lại bằng
+`grep -rn "fetch(" public/` trước mỗi lần đổi lớn.
+
+Giao diện nói thẳng: dữ liệu đã che đi tới đâu, không dùng huấn luyện mô hình, tự xoá trong
+30 ngày, và bỏ tick *Chấm thêm bằng AI* thì không gì rời khỏi máy.
+
+**Câu được phép nói với khách:** *"Hồ sơ khách nằm trong trình duyệt trên máy anh/chị."*
+**Câu KHÔNG được nói:** *"Dữ liệu không đi đâu cả."* — sai, và dễ vỡ trận khi có người hỏi kỹ.
+
+#### Vì sao giao diện KHÔNG nhắc thời hạn lưu 30 ngày
+
+Bản 15/09 có ghi "tự xoá trong vòng 30 ngày". Đã **bỏ khỏi giao diện** vì nó phản tác dụng:
+đọc lên thành "vậy là có lưu 30 ngày", trong khi mối lo thật của sale là *"danh sách khách
+của tôi có bị lấy mất không"* — mà với dữ liệu đã che thì câu trả lời là không.
+
+Thay bằng **ví dụ trước/sau** cho thấy đúng thứ rời khỏi máy: một đoạn chat nói về căn hộ,
+không có số điện thoại, không có tên, không có gì để liên lạc lại với khách.
+
+**Đây là chuyện trình bày, KHÔNG phải chuyện giấu.** Không trang bán hàng nào có nghĩa vụ
+liệt kê mọi điều khoản lưu trữ của bên thứ ba; nhưng nói sai thì không được.
+
+**Sự thật để trả lời khi có người hỏi thẳng** (giữ ở đây để luôn sẵn câu):
+API Anthropic không dùng dữ liệu để huấn luyện mô hình (mặc định), và **tự xoá đầu vào lẫn
+đầu ra trong vòng 30 ngày** kể từ khi nhận, theo chính sách lưu trữ dành cho khách hàng
+thương mại. Nguồn: privacy.claude.com, mục "How long do you store my organization's data".
+
+**Câu trả lời mẫu:** *"Bên xử lý giữ tối đa 30 ngày rồi tự xoá, và không dùng để huấn luyện
+mô hình. Nhưng điều đáng nói hơn là thứ gửi sang đó đã bị bỏ mất số điện thoại, tên và email
+rồi — kể cả có ai đọc được thì cũng không liên lạc được với khách của anh/chị. Không yên tâm
+thì bỏ tick Chấm thêm bằng AI, công cụ vẫn chạy đủ."*
+
+Nếu sau này cần nói "không lưu lại gì cả" cho đúng, phải xin **Zero Data Retention** với
+Anthropic — là điều khoản hợp đồng riêng, phải liên hệ họ, chưa làm.
+
 ### Chân dung khách và kho hồ sơ (thêm 14/09)
 
 `public/lib/profile.js` biến hội thoại đã ẩn danh hoá thành bản ghi có cấu trúc:
@@ -87,7 +131,7 @@ trở thành bên xử lý dữ liệu cá nhân tập trung.
 
 ### Kiểm thử
 
-`npm test` — 53 phép, 6 ca thật (Nóng, Ấm, mới tìm hiểu, môi giới dò giá, lừa đảo, quá ngắn), cộng phần chân dung và kho hồ sơ. Chạy trước mỗi lần push.
+`npm test` — 59 phép, 6 ca thật (Nóng, Ấm, mới tìm hiểu, môi giới dò giá, lừa đảo, quá ngắn), cộng phần chân dung và kho hồ sơ. Chạy trước mỗi lần push.
 
 ## 4. Định vị và giá — đã sửa lại ngày 14/09, ĐỌC KỸ TRƯỚC KHI RESEARCH LẠI
 
@@ -250,5 +294,7 @@ Trên Polar đã có: sản phẩm subscription theo tháng ($9) + một checkou
 | Cảnh báo "hai lớp lệch nhau" hiện cả khi hai lớp cùng kết luận Ảo | Chỉ nên hiện khi *phân loại* khác nhau |
 | `ANTHROPIC_API_KEY` trên Vercel chỉ có ở Production | Thêm Preview trước Buổi 7 |
 | Hồ sơ chỉ nằm trên một máy, xoá dữ liệu duyệt web là mất | Có nút Xuất JSON; bản sau làm tài khoản để đồng bộ |
+| Bộ ẩn danh hoá chạy theo mẫu chữ: tên riêng không đi kèm xưng hô ("Tuấn nói…") còn sót | Đã nói thẳng trên giao diện + nhắc người dùng soát bản sạch. Bản sau cân nhắc lớp nhận diện tên tốt hơn, nhưng không được nuốt tên dự án vì đó là căn cứ chấm |
+| Ô Đặt tên và Ghi chú riêng không đi qua bộ che | Đã ghi rõ trên màn Hồ sơ. Dữ liệu vẫn nằm trên máy người dùng, không gửi đi |
 | Vẫn phải dán tay từng hội thoại | Bản sau: tiện ích Chrome đọc Zalo Web (chỉ đọc), hoặc nhận ảnh chụp màn hình |
 | Chân dung chưa đọc được tên dự án và khu vực | Cần danh mục dự án để đối chiếu, chưa có |

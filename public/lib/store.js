@@ -86,6 +86,16 @@ export function luu(hoSo) {
   return ghi(ds) ? banGhi : null;
 }
 
+/** Xoá sạch kho. Quyền xoá dữ liệu của mình phải nằm trong tay người dùng. */
+export function xoaTatCa() {
+  try {
+    localStorage.removeItem(KHOA);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function xoa(id) {
   const ds = doc().filter((x) => x.id !== id);
   return ghi(ds);
