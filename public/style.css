@@ -153,3 +153,106 @@ input[type=text],input[type=search],select{width:100%;padding:9px;border:1px sol
 .truoc-sau code{display:block;background:#fcfcfb;border:1px solid var(--vien);border-radius:8px;
   padding:10px;font:13px/1.55 ui-monospace,Menlo,monospace;color:var(--muc);overflow-x:auto;white-space:pre-wrap}
 .truoc-sau>div:last-child code{border-color:#bcd9c7;background:#f5faf7}
+
+/* ─────────── Màn hình đầu: cho người lạ thấy sản phẩm chạy ngay ─────────── */
+.dan-nhap{font-size:14px;color:var(--nhat);margin:-4px 0 12px;line-height:1.55}
+.thu-nhanh{margin-top:14px;padding:14px;border:1px dashed var(--vien);border-radius:10px;background:#fcfcfb}
+.tn-hoi{margin:0 0 10px;font-size:14px;color:var(--nhat)}
+.tn-hoi b{color:var(--muc)}
+.tn-nut{display:flex;gap:8px;flex-wrap:wrap}
+.nut-mau{display:inline-flex;align-items:center;gap:8px;background:var(--the);
+  border:1px solid var(--vien);border-radius:999px;padding:9px 16px;
+  font:inherit;font-size:14px;font-weight:500;color:var(--muc);cursor:pointer}
+.nut-mau:hover{border-color:var(--muc);background:#f2f1ee}
+.nut-mau .cham{width:9px;height:9px;border-radius:50%;flex:0 0 9px}
+.m-nong .cham{background:var(--nong)}
+.m-ao   .cham{background:var(--ao)}
+.m-som  .cham{background:var(--sau)}
+@media (max-width:520px){
+  .tn-nut{flex-direction:column}
+  .nut-mau{justify-content:flex-start;width:100%}
+}
+
+/* ═════════ LÀM ĐẸP — màu theo phân loại, có sức nặng thị giác ═════════
+   Màu không để trang trí: nó mã hoá mức độ ưu tiên. Liếc một cái là biết
+   nên gọi ai trước, không phải đọc chữ.                                   */
+:root{
+  --n-nong:#c0392b; --n-nong-nh:#fdf0ee;
+  --n-am:#c77d19;   --n-am-nh:#fdf6ec;
+  --n-lanh:#2f6fa8; --n-lanh-nh:#eef4fa;
+  --n-sau:#6b6862;  --n-sau-nh:#f3f2f0;
+  --n-ao:#8b2f6a;   --n-ao-nh:#fdf6fa;
+}
+
+/* Đầu trang bớt khô */
+.top{background:linear-gradient(135deg,#1d1c1a 0%,#2b2825 100%);position:relative}
+.top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;
+  background:linear-gradient(90deg,var(--n-nong),var(--n-am),var(--n-lanh),var(--n-ao))}
+
+/* Thanh ba bước khi đang chấm */
+.cac-buoc{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.buoc{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:#a9a49c;
+  border:1px solid var(--vien);border-radius:999px;padding:5px 12px;background:var(--the)}
+.buoc i{width:8px;height:8px;border-radius:50%;background:var(--vien);flex:0 0 8px}
+.buoc.dang{color:var(--muc);border-color:var(--muc)}
+.buoc.dang i{background:var(--muc);animation:nhap 1s ease-in-out infinite}
+.buoc.xong{color:var(--xanh);border-color:#bcd9c7;background:#f5faf7}
+.buoc.xong i{background:var(--xanh)}
+@keyframes nhap{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* Khối kết quả — khoảnh khắc đáng nhớ nhất, nên được trình bày nặng nhất */
+.kq{border-width:1px;overflow:hidden}
+.bang-kq{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  margin:-20px -20px 16px;padding:18px 20px;color:#fff}
+.nhan-lop{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.8px;opacity:.75;margin-bottom:4px}
+.huy-to{font-size:26px;font-weight:700;letter-spacing:-.4px;line-height:1.1}
+.ben-phai{text-align:right;line-height:1}
+.diem-to{font-size:42px;font-weight:700;letter-spacing:-2px}
+.diem-mau{font-size:18px;opacity:.7}
+.diem-chu{display:block;font-size:12px;opacity:.75;margin-top:4px}
+.kq-nong .bang-kq{background:var(--n-nong)}
+.kq-am   .bang-kq{background:var(--n-am)}
+.kq-lanh .bang-kq{background:var(--n-lanh)}
+.kq-sau  .bang-kq{background:var(--n-sau)}
+.kq-ao   .bang-kq{background:var(--n-ao)}
+
+/* Việc làm ngay đổi màu theo độ nóng — sức ép đến từ dữ liệu, không từ khẩu hiệu */
+.viec.v-nong{background:var(--n-nong-nh);border-left-color:var(--n-nong)}
+.viec.v-am  {background:var(--n-am-nh);  border-left-color:var(--n-am)}
+.viec.v-lanh{background:var(--n-lanh-nh);border-left-color:var(--n-lanh)}
+.viec.v-sau {background:var(--n-sau-nh); border-left-color:var(--n-sau)}
+.viec.v-ao  {background:var(--n-ao-nh);  border-left-color:var(--n-ao)}
+.viec.v-nong b{color:var(--n-nong)}
+.viec.v-ao b{color:var(--n-ao)}
+
+/* Dải thống kê ở màn Hồ sơ */
+.thong-ke{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tk{font-size:13px;padding:5px 12px;border-radius:999px;border:1px solid transparent}
+.tk b{font-size:15px;margin-right:2px}
+.tk-nong{background:var(--n-nong-nh);color:var(--n-nong);border-color:#f2c9c2}
+.tk-am  {background:var(--n-am-nh);  color:var(--n-am);  border-color:#f0dcb8}
+.tk-lanh{background:var(--n-lanh-nh);color:var(--n-lanh);border-color:#c5d8ea}
+.tk-sau {background:var(--n-sau-nh); color:var(--n-sau); border-color:var(--vien)}
+.tk-ao  {background:var(--n-ao-nh);  color:var(--n-ao);  border-color:#e8c5dc}
+
+/* Thẻ hồ sơ có viền màu trái */
+.hs{border-left-width:4px}
+.hs-nong{border-left-color:var(--n-nong)}
+.hs-am  {border-left-color:var(--n-am)}
+.hs-lanh{border-left-color:var(--n-lanh)}
+.hs-sau {border-left-color:var(--n-sau)}
+.hs-ao  {border-left-color:var(--n-ao)}
+
+/* Chuyển động nhẹ khi kết quả hiện ra */
+#ketQua>.card,#khuChanDung:not([hidden]){animation:hienLen .35s ease both}
+#ketQua>.card:nth-child(2){animation-delay:.07s}
+@keyframes hienLen{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+@media (max-width:520px){
+  .diem-to{font-size:34px}
+  .huy-to{font-size:22px}
+  .bang-kq{margin:-16px -16px 14px;padding:16px}
+}

@@ -91,6 +91,16 @@ Hồ sơ lưu trong `localStorage` trên máy sale, không gửi lên máy chủ
 Đánh đổi: xoá dữ liệu duyệt web là mất hồ sơ (có nút Xuất JSON để sao lưu),
 và không đồng bộ giữa máy tính với điện thoại.
 
+### Màu mã hoá mức độ ưu tiên, không để trang trí
+
+Mỗi phân loại có một màu cố định: Nóng đỏ, Ấm cam, Lạnh xanh, Lạnh sâu xám, Ảo tím.
+Màu đó xuất hiện nhất quán ở khối kết quả, ở khối "Việc làm ngay", ở dải thống kê và ở viền
+trái mỗi thẻ hồ sơ — nên liếc một cái là biết nên gọi ai trước, không phải đọc chữ.
+
+Sản phẩm **không dùng popup hối thúc**. Khách hàng ở đây là dân bán hàng chuyên nghiệp;
+chiêu tạo khan hiếm làm giảm tin cậy thay vì tăng. Sức ép đến từ kết quả chấm: khách Nóng
+thì khối việc cần làm chuyển đỏ với hạn "gọi lại trong 1 giờ".
+
 ## 4. Dữ liệu cá nhân — được xử lý ra sao
 
 Luật Bảo vệ dữ liệu cá nhân có hiệu lực 01/01/2026 xếp số điện thoại, email, số tài khoản, số giấy tờ vào nhóm dữ liệu cá nhân. Gửi nguyên văn hội thoại tới một mô hình đặt ở nước ngoài là hành vi chuyển dữ liệu xuyên biên giới.

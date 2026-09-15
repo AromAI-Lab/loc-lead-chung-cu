@@ -27,15 +27,21 @@
   <section class="card">
     <div class="card-head">
       <h2>1 · Dán hội thoại</h2>
-      <div class="mau">
-        <span>Chưa có sẵn?</span>
-        <button type="button" class="link" data-mau="nong">Thử ca Nóng</button>
-        <button type="button" class="link" data-mau="ao">Thử ca Ảo</button>
-        <button type="button" class="link" data-mau="som">Thử ca mới tìm hiểu</button>
+    </div>
+    <p class="dan-nhap">Dán đoạn chat Zalo hoặc Messenger của bạn với một khách vào ô dưới,
+      rồi bấm nút đen. Trong 10 giây bạn có điểm lead <b>và</b> hồ sơ khách đã điền sẵn.</p>
+
+    <div class="thu-nhanh">
+      <p class="tn-hoi">Chưa có đoạn chat sẵn trong tay? <b>Bấm thử một ca mẫu — 5 giây là thấy kết quả.</b></p>
+      <div class="tn-nut">
+        <button type="button" class="nut-mau m-nong" data-mau="nong"><span class="cham"></span>Ca khách Nóng</button>
+        <button type="button" class="nut-mau m-ao" data-mau="ao"><span class="cham"></span>Ca lead Ảo</button>
+        <button type="button" class="nut-mau m-som" data-mau="som"><span class="cham"></span>Ca mới tìm hiểu</button>
       </div>
     </div>
 
-    <textarea id="hoiThoai" rows="10" spellcheck="false"
+
+    <textarea id="hoiThoai" rows="7" spellcheck="false"
       placeholder="Dán đoạn chat Zalo/Messenger vào đây.
 
 Mẹo chấm chính xác hơn: đặt K: trước lời khách và S: trước lời bạn.
@@ -43,6 +49,7 @@ Mẹo chấm chính xác hơn: đặt K: trước lời khách và S: trước l
 K: căn 2PN còn không em, giá bao nhiêu
 S: dạ còn ạ, 3,2 tỷ. Anh mua để ở hay đầu tư ạ
 K: nhà anh ở. hai vợ chồng chốt rồi, tháng 12 hết hợp đồng thuê"></textarea>
+
 
     <details class="them">
       <summary>Thông tin thêm — không bắt buộc, nhưng chấm sát hơn</summary>
@@ -68,6 +75,12 @@ K: nhà anh ở. hai vợ chồng chốt rồi, tháng 12 hết hợp đồng th
       <button id="chay" class="chinh">Ẩn danh hoá &amp; chấm điểm</button>
       <label class="ai-toggle"><input type="checkbox" id="dungAI" checked> Chấm thêm bằng AI</label>
     </div>
+    <div class="cac-buoc" id="cacBuoc" hidden>
+      <span class="buoc"><i></i>Che dữ liệu cá nhân</span>
+      <span class="buoc"><i></i>Chấm theo bộ tiêu chí</span>
+      <span class="buoc"><i></i>Đối chiếu bằng AI</span>
+    </div>
+
     <p class="ghi-chu nho-hon">Bỏ chọn ô này thì <b>không một dữ liệu nào rời khỏi máy bạn</b> — công cụ vẫn chấm điểm, vẫn bắt lead ảo, vẫn dựng hồ sơ khách bằng bộ luật chạy ngay trong trình duyệt.</p>
   </section>
 
@@ -132,6 +145,7 @@ K: nhà anh ở. hai vợ chồng chốt rồi, tháng 12 hết hợp đồng th
         <button type="button" class="link do" id="xoaTatCa">Xoá tất cả</button>
       </div>
     </div>
+    <div class="thong-ke" id="thongKe" hidden></div>
     <input type="search" id="oTimKiem" placeholder="Tìm theo tên, nhu cầu, mốc thời gian, ghi chú…">
     <div id="dsHoSo"></div>
     <p class="phap-ly">Hồ sơ nằm <b>trong trình duyệt trên máy bạn</b> và không bao giờ được gửi lên máy chủ nào — kể cả khi bạn bật lớp AI, vì lớp AI chỉ nhận đoạn hội thoại đã che, không nhận hồ sơ. Hội thoại gốc không được lưu, chỉ giữ các trường đã rút gọn.<br><br>

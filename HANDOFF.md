@@ -57,6 +57,35 @@ Bộ tiêu chí đầy đủ: `docs/scoring-criteria.md`
 - **Lớp AI** chấm lại độc lập, gợi ý tin nhắn gửi tiếp.
 - Lệch từ 3 điểm trở lên thì sản phẩm **nói thẳng là nên tự đọc lại**.
 
+### Màu và giao diện (15/09) — và vì sao KHÔNG dùng popup hối thúc
+
+Phản hồi thật từ một sale: *"cái này em thấy ko trực quan lắm"* (gửi 09:18, trả lời 09:38,
+không dán thử hội thoại nào). Đọc kỹ thì đây không phải chê chất lượng chấm điểm mà chê
+**màn hình đầu**: mở ra thấy một ô trống to, ba nút "Thử ca" thì nép góc phải, chữ nhỏ, gạch chân.
+
+Đã sửa: ba nút mẫu thành nút thật có chấm màu, đặt **trên** ô dán; thêm một dòng nói thẳng
+phải làm gì; ô dán 10 dòng xuống 7 dòng. Khối thử nhanh từ y=567 lên y=298 trên máy tính,
+y=630 lên y=361 trên điện thoại — vào trong khung nhìn đầu tiên ở cả hai kích thước.
+
+Và một lượt làm đẹp: khối kết quả có nền màu theo phân loại với điểm số cỡ lớn; "Việc làm ngay"
+đổi màu theo độ nóng; thanh ba bước khi đang chấm (che dữ liệu → chấm theo luật → đối chiếu AI);
+dải thống kê ở màn Hồ sơ; thẻ hồ sơ có viền màu trái; đầu trang có dải gradient.
+
+**Màu ở đây không để trang trí — nó mã hoá mức độ ưu tiên.** Liếc một cái biết nên gọi ai trước.
+
+#### Đã cân nhắc và BỎ: popup kiểu "Đừng để vuột mất cơ hội chốt đơn"
+
+Ba lý do, ghi lại để lần sau không phải bàn lại:
+
+1. **Đi ngược đúng lời chê.** "Không trực quan" nghĩa là rối. Popup làm rối thêm.
+2. **Khách hàng là dân sale.** Họ làm nghề bán hàng, nhận ra chiêu FOMO trong nửa giây,
+   và phản xạ là "lại một cái phần mềm dạo".
+3. **Phá giọng minh bạch** vừa xây ở khối "Dữ liệu đã che đi tới đâu".
+
+**Thay bằng: sức ép đến từ KẾT QUẢ.** Khách NÓNG thì khối "Việc làm ngay" chuyển đỏ với dòng
+"Gọi lại trong 1 giờ" — đúng ý "đừng để vuột mất", nhưng nói bằng dữ liệu của chính khách đó
+chứ không bằng khẩu hiệu. Sale tin vì có căn cứ ngay bên trên.
+
 ### Ba nguyên tắc đã cài vào sản phẩm
 
 1. **Tách lời khách khỏi lời sale** trước khi chấm (tiền tố `K:` / `S:`). Không tách được thì tự hạ độ tin cậy và nói rõ.

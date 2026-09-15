@@ -5,6 +5,17 @@ import { trichChanDung } from '/lib/profile.js';
 import * as kho from '/lib/store.js';
 
 const $ = (id) => document.getElementById(id);
+
+/** Đổi tên phân loại có dấu thành slug để dùng trong CSS. Thứ tự kiểm tra có chủ ý:
+ *  "LẠNH SÂU" phải được bắt trước "LẠNH". */
+function slugLoai(pl) {
+  const t = String(pl || '');
+  if (t.includes('ẢO')) return 'ao';
+  if (t.includes('SÂU')) return 'sau';
+  if (t.includes('NÓNG')) return 'nong';
+  if (t.includes('ẤM')) return 'am';
+  return 'lanh';
+}
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -21,6 +32,23 @@ document.querySelectorAll('[data-mau]').forEach((b) => {
 
 $('chay').addEventListener('click', chay);
 
+/* Thanh ba bước: vừa cho thấy máy đang chạy, vừa nói cho người dùng biết
+   sản phẩm đang làm gì. Phản hồi "không trực quan" một phần đến từ chỗ này —
+   bấm nút xong không biết bên trong xảy ra chuyện gì. */
+function buoc(n) {
+  const khu = $('cacBuoc');
+  khu.hidden = false;
+  [...khu.querySelectorAll('.buoc')].forEach((b, i) => {
+    b.classList.toggle('dang', i === n - 1);
+    b.classList.toggle('xong', i < n - 1);
+  });
+}
+function xongBuoc() {
+  const khu = $('cacBuoc');
+  [...khu.querySelectorAll('.buoc')].forEach((b) => { b.classList.remove('dang'); b.classList.add('xong'); });
+  setTimeout(() => { khu.hidden = true; }, 700);
+}
+
 async function chay() {
   const tho = $('hoiThoai').value.trim();
   if (!tho) { $('hoiThoai').focus(); return; }
@@ -31,6 +59,7 @@ async function chay() {
 
   try {
     /* Bước 1 — ẩn danh hoá NGAY TRÊN MÁY, trước khi có bất kỳ yêu cầu mạng nào */
+    buoc(1);
     const { ketQua: sach, daThayThe } = anDanhHoa(tho);
     hienAnDanh(sach, daThayThe);
 
@@ -42,12 +71,14 @@ async function chay() {
       khongNgheMay: $('khongNgheMay').checked,
       taiKhoanDangNgo: $('taiKhoanDangNgo').checked
     };
+    buoc(2);
     const luat = chamDiem(sach, coTay);
     hienKetQua(luat, null);
     dungChanDung(sach, luat, null, coTay);
 
     /* Bước 3 — lớp AI, chỉ khi người dùng bật */
     if ($('dungAI').checked && luat.duLieuDu) {
+      buoc(3);
       let ai = null;
       try {
         const r = await fetch('/api/score', {
@@ -63,6 +94,7 @@ async function chay() {
       capNhatPhanAI(ai);
     }
   } finally {
+    xongBuoc();
     nut.disabled = false;
     nut.textContent = 'Ẩn danh hoá & chấm điểm';
   }
@@ -96,11 +128,17 @@ function hienKetQua(luat, ai) {
       <td><b>${esc(x.ten || x.ma)}</b><br><span style="color:#6b6862">${esc((x.canCu || []).join ? x.canCu.join('. ') : x.canCu)}</span></td>
     </tr>`).join('');
 
-  let html = `<section class="card">
-    <h2>Kết quả — lớp luật cứng</h2>
-    <div class="dong-diem">
-      <span class="huy ${esc(luat.phanLoai)}">${esc(luat.phanLoai)}</span>
-      <span class="so-diem">${luat.tongDiem}<span>/12 điểm tiềm năng</span></span>
+  const sl = slugLoai(luat.phanLoai);
+  let html = `<section class="card kq kq-${sl}">
+    <div class="bang-kq">
+      <div>
+        <span class="nhan-lop">Kết quả · lớp luật cứng</span>
+        <span class="huy-to">${esc(luat.phanLoai)}</span>
+      </div>
+      <div class="ben-phai">
+        <span class="diem-to">${luat.tongDiem}</span><span class="diem-mau">/12</span>
+        <span class="diem-chu">điểm tiềm năng</span>
+      </div>
     </div>
     <p class="ly-do">${esc(luat.lyDoPhanLoai)} · Độ tin cậy: <b>${esc(luat.doTinCay)}</b></p>
     <table><thead><tr><th>Điểm</th><th>Tiêu chí và căn cứ</th></tr></thead>
@@ -119,7 +157,7 @@ function hienKetQua(luat, ai) {
       </div>`).join('') + '</div>';
   }
 
-  html += `<div class="viec"><b>Việc làm ngay</b>${esc(luat.hanhDong.viec)}
+  html += `<div class="viec v-${sl}"><b>Việc làm ngay</b>${esc(luat.hanhDong.viec)}
     <div class="tg">Nhóm này nên chiếm ${esc(luat.hanhDong.thoiGian)}.</div></div>`;
   html += '</section>';
 
@@ -283,6 +321,17 @@ function veDanhSach() {
   const ds = kho.xepUuTien(kho.timKiem(kho.danhSach(), tuKhoa));
   const khu = $('dsHoSo');
 
+  /* Dải thống kê: liếc một cái biết đang ôm bao nhiêu khách nóng */
+  const toanBo = kho.danhSach();
+  const dem = { nong: 0, am: 0, lanh: 0, sau: 0, ao: 0 };
+  for (const x of toanBo) dem[slugLoai(x.phanLoai)]++;
+  const NHAN = { nong: 'Nóng', am: 'Ấm', lanh: 'Lạnh', sau: 'Lạnh sâu', ao: 'Ảo' };
+  $('thongKe').innerHTML = toanBo.length
+    ? Object.entries(dem).filter(([, n]) => n > 0)
+        .map(([k, n]) => `<span class="tk tk-${k}"><b>${n}</b> ${NHAN[k]}</span>`).join('')
+    : '';
+  $('thongKe').hidden = !toanBo.length;
+
   if (!ds.length) {
     khu.innerHTML = kho.demHoSo() === 0
       ? '<p class="trong-bang">Chưa có hồ sơ nào. Chấm một hội thoại ở tab <b>Chấm lead</b> rồi bấm <b>Lưu hồ sơ khách</b>.</p>'
@@ -291,7 +340,7 @@ function veDanhSach() {
   }
 
   khu.innerHTML = ds.map((x) => `
-    <article class="hs">
+    <article class="hs hs-${slugLoai(x.phanLoai)}">
       <div class="hs-dau">
         <span class="huy ${esc(x.phanLoai)}">${esc(x.phanLoai)}</span>
         <b class="hs-ten">${esc(x.ten || 'Khách chưa đặt tên')}</b>
