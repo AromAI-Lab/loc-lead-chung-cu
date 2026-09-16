@@ -287,3 +287,9 @@ input[type=text],input[type=search],select{width:100%;padding:9px;border:1px sol
   .hoi-ngay,.viec{font-size:14px;padding:12px}
   .cham-ct summary{font-size:12px}
 }
+
+/* Lời hứa về dữ liệu chuyển lên trước nút chấm — nó phải đến TRƯỚC lúc
+   người ta dán, không phải sau. Phần kiểm chứng đoạn chat cụ thể thì
+   ngược lại, nằm dưới cùng vì chỉ mở khi nghi ngờ. */
+.minh-bach{margin-top:16px;border-top:1px solid var(--vien);padding-top:12px}
+.lead-phu{font-size:14px;color:var(--nhat);margin:-4px 0 14px}

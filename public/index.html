@@ -106,30 +106,6 @@ K: nhà anh ở. hai vợ chồng chốt rồi, tháng 12 hết hợp đồng th
       </div>
     </details>
 
-    <div class="hanh-dong">
-      <button id="chay" class="chinh">Ẩn danh hoá &amp; chấm điểm</button>
-      <label class="ai-toggle"><input type="checkbox" id="dungAI" checked> Chấm thêm bằng AI</label>
-    </div>
-    <div class="cac-buoc" id="cacBuoc" hidden>
-      <span class="buoc"><i></i>Che dữ liệu cá nhân</span>
-      <span class="buoc"><i></i>Chấm theo bộ tiêu chí</span>
-      <span class="buoc"><i></i>Đối chiếu bằng AI</span>
-    </div>
-
-    <p class="ghi-chu nho-hon">Bỏ chọn ô này thì <b>không một dữ liệu nào rời khỏi máy bạn</b> — công cụ vẫn chấm điểm, vẫn bắt lead ảo, vẫn dựng hồ sơ khách bằng bộ luật chạy ngay trong trình duyệt.</p>
-  </section>
-
-  <section class="card" id="khuAnDanh" hidden>
-    <h2>2 · Đã che dữ liệu cá nhân trước khi gửi đi</h2>
-    <p class="lead" id="tomTatChe"></p>
-    <details>
-      <summary>Xem đúng nội dung được gửi đi</summary>
-      <pre id="banSach"></pre>
-    </details>
-    <div class="canh-bao">Bộ che chạy theo mẫu chữ, không phải AI, nên <b>không hoàn hảo</b>. Tên riêng không đi kèm xưng hô — ví dụ "Tuấn nói tháng 12 dọn vào" — có thể còn sót. Bấm <b>Xem đúng nội dung được gửi đi</b> ở trên để soát trước, mất 5 giây.</div>
-
-    <p class="phap-ly">Số điện thoại, email, số tài khoản, số giấy tờ, địa chỉ nhà và tên riêng được thay bằng nhãn <b>ngay trên máy bạn</b>, trước khi bất kỳ dữ liệu nào rời khỏi trình duyệt. Máy chủ che lại lần thứ hai, không tin vào trình duyệt. Hội thoại gốc không được lưu ở đâu cả.</p>
-
     <details class="minh-bach">
       <summary>Dữ liệu đã che đi tới đâu</summary>
       <div class="mb-body">
@@ -158,16 +134,43 @@ K: nhà anh ở. hai vợ chồng chốt rồi, tháng 12 hết hợp đồng th
         <p class="nho-hon">Nói rõ chỗ này vì Luật Bảo vệ dữ liệu cá nhân có hiệu lực từ 01/01/2026, và vì bạn có quyền biết dữ liệu khách của mình đi đâu. Không muốn gửi đi thì bỏ chọn ô <i>Chấm thêm bằng AI</i> — công cụ vẫn chạy đủ.</p>
       </div>
     </details>
+
+    <div class="hanh-dong">
+      <button id="chay" class="chinh">Ẩn danh hoá &amp; chấm điểm</button>
+      <label class="ai-toggle"><input type="checkbox" id="dungAI" checked> Chấm thêm bằng AI</label>
+    </div>
+    <div class="cac-buoc" id="cacBuoc" hidden>
+      <span class="buoc"><i></i>Che dữ liệu cá nhân</span>
+      <span class="buoc"><i></i>Chấm theo bộ tiêu chí</span>
+      <span class="buoc"><i></i>Đối chiếu bằng AI</span>
+    </div>
+
+    <p class="ghi-chu nho-hon">Bỏ chọn ô này thì <b>không một dữ liệu nào rời khỏi máy bạn</b> — công cụ vẫn chấm điểm, vẫn bắt lead ảo, vẫn dựng hồ sơ khách bằng bộ luật chạy ngay trong trình duyệt.</p>
   </section>
+
 
   <section id="ketQua" hidden></section>
 
   <section class="card" id="khuChanDung" hidden>
     <div class="card-head">
-      <h2>3 · Chân dung khách — máy tự điền, bạn không gõ chữ nào</h2>
+      <h2>2 · Chân dung khách — máy tự điền, bạn không gõ chữ nào</h2>
     </div>
     <div id="chanDungThongTin"></div>
     <div id="chanDungLuu"></div>
+  </section>
+
+  <section class="card" id="khuAnDanh" hidden>
+    <h2>Kiểm chứng · dữ liệu cá nhân đã bị che thế nào</h2>
+    <p class="lead-phu">Phần này để bạn soát lại. Kết quả chấm ở trên rồi, không cần đọc khối này mỗi lần.</p>
+    <p class="lead" id="tomTatChe"></p>
+    <details>
+      <summary>Xem đúng nội dung được gửi đi</summary>
+      <pre id="banSach"></pre>
+    </details>
+    <div class="canh-bao">Bộ che chạy theo mẫu chữ, không phải AI, nên <b>không hoàn hảo</b>. Tên riêng không đi kèm xưng hô — ví dụ "Tuấn nói tháng 12 dọn vào" — có thể còn sót. Bấm <b>Xem đúng nội dung được gửi đi</b> ở trên để soát trước, mất 5 giây.</div>
+
+    <p class="phap-ly">Số điện thoại, email, số tài khoản, số giấy tờ, địa chỉ nhà và tên riêng được thay bằng nhãn <b>ngay trên máy bạn</b>, trước khi bất kỳ dữ liệu nào rời khỏi trình duyệt. Máy chủ che lại lần thứ hai, không tin vào trình duyệt. Hội thoại gốc không được lưu ở đâu cả.</p>
+
   </section>
 
 </main>
