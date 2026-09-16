@@ -256,3 +256,34 @@ input[type=text],input[type=search],select{width:100%;padding:9px;border:1px sol
   .huy-to{font-size:22px}
   .bang-kq{margin:-16px -16px 14px;padding:16px}
 }
+
+/* ══ Chế độ gọn cho khối kết quả ═════════════════════════════════════════
+   Thêm 16/09 sau hai phản hồi: "không trực quan lắm" và "nhiều tiêu chí
+   quá, dài dòng". Mức 1 chỉ còn ba khối; bảng điểm gập vào .cham-ct.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Câu nên hỏi tiếp — khối thứ hai sale đọc, sau "việc làm ngay" */
+.hoi-ngay{background:#eef4f9;border-left:3px solid var(--lanh);
+  padding:14px;border-radius:0 8px 8px 0;margin-top:12px;font-size:15px}
+.hoi-ngay b{display:block;margin-bottom:6px;font-size:13px;
+  text-transform:uppercase;letter-spacing:.5px;color:var(--lanh)}
+.hn-cau{display:block;font-style:italic}
+.hn-chep{margin-top:8px;display:inline-block}
+
+/* Phần chấm điểm gập lại */
+.cham-ct{margin-top:18px;border-top:1px solid var(--vien);padding-top:12px}
+.cham-ct summary{font-size:13px;color:var(--nhat);padding:4px 0;
+  list-style-position:outside}
+.cham-ct summary:hover{color:var(--muc)}
+.cham-ct[open] summary{margin-bottom:10px;color:var(--muc)}
+.ct-than{animation:mo-ra .18s ease-out}
+.ct-than .ly-do{margin-bottom:12px}
+.ct-than table{margin-top:0}
+
+@keyframes mo-ra{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+/* Trên điện thoại, khối kết quả phải vừa một màn hình khi chưa mở chi tiết */
+@media (max-width:560px){
+  .hoi-ngay,.viec{font-size:14px;padding:12px}
+  .cham-ct summary{font-size:12px}
+}

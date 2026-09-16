@@ -1,7 +1,7 @@
 import { anDanhHoa, tongSoDaChe } from '/lib/anonymize.js';
 import { chamDiem } from '/lib/criteria.js';
 import { HOI_THOAI_MAU } from '/lib/samples.js';
-import { trichChanDung } from '/lib/profile.js';
+import { trichChanDung, CAU_HOI_LAP_O } from '/lib/profile.js';
 import * as kho from '/lib/store.js';
 import { ghi } from '/lib/dolen.js';
 
@@ -132,6 +132,34 @@ function hienAnDanh(sach, daThayThe) {
   $('khuAnDanh').hidden = false;
 }
 
+/**
+ * Một câu duy nhất nên hỏi tiếp — lấy từ tiêu chí điểm thấp nhất.
+ * Sale không đọc ba câu hỏi cùng lúc. Họ đọc một câu rồi gõ luôn.
+ */
+function cauNenHoiNgan(luat) {
+  const thap = (luat.tieuChi || [])
+    .filter((x) => x.diem <= 1 && CAU_HOI_LAP_O[x.ma])
+    .sort((a, b) => a.diem - b.diem)[0];
+  return thap ? CAU_HOI_LAP_O[thap.ma] : null;
+}
+
+/**
+ * Hiện kết quả.
+ *
+ * Bố cục sửa 16/09 sau hai phản hồi độc lập nói cùng một chuyện:
+ * sale #1 "không trực quan lắm", sale #2 "nhiều tiêu chí quá, dài dòng".
+ *
+ * Sale mở công cụ lúc 8 giờ sáng với hai mươi đoạn chat. Lúc đó họ cần đúng
+ * hai câu trả lời: GỌI AI TRƯỚC và GỌI THÌ NÓI GÌ. Bảng điểm bốn tiêu chí là
+ * thứ họ mở ra khi nghi ngờ kết quả — không phải thứ đọc mỗi lần chấm.
+ *
+ * Nên: mức 1 chỉ có phân loại, việc làm ngay, một câu nên hỏi. Toàn bộ phần
+ * chấm gập sau dòng "Vì sao chấm vậy".
+ *
+ * Hai thứ KHÔNG BAO GIỜ được gập, vì gập đi là giấu cảnh báo:
+ *   - cờ Ảo (dù chỉ một cờ)
+ *   - độ tin cậy thấp
+ */
 function hienKetQua(luat, ai) {
   const khu = $('ketQua');
   khu.hidden = false;
@@ -152,10 +180,14 @@ function hienKetQua(luat, ai) {
     </tr>`).join('');
 
   const sl = slugLoai(luat.phanLoai);
+  const cauHoi = cauNenHoiNgan(luat);
+  const tinThap = luat.doTinCay === 'thấp';
+
+  /* ── MỨC 1 — thứ sale nhìn thấy ngay ────────────────────────────── */
   let html = `<section class="card kq kq-${sl}">
     <div class="bang-kq">
       <div>
-        <span class="nhan-lop">Kết quả · lớp luật cứng</span>
+        <span class="nhan-lop">Kết quả</span>
         <span class="huy-to">${esc(luat.phanLoai)}</span>
       </div>
       <div class="ben-phai">
@@ -163,14 +195,17 @@ function hienKetQua(luat, ai) {
         <span class="diem-chu">điểm tiềm năng</span>
       </div>
     </div>
-    <p class="ly-do">${esc(luat.lyDoPhanLoai)} · Độ tin cậy: <b>${esc(luat.doTinCay)}</b></p>
-    <table><thead><tr><th>Điểm</th><th>Tiêu chí và căn cứ</th></tr></thead>
-    <tbody>${hangTieuChi(luat.tieuChi)}</tbody></table>`;
 
-  if (luat.ghiChuTinCay) {
-    html += `<div class="canh-bao">${esc(luat.ghiChuTinCay)}</div>`;
+    <div class="viec v-${sl}"><b>Việc làm ngay</b>${esc(luat.hanhDong.viec)}
+      <div class="tg">Nhóm này nên chiếm ${esc(luat.hanhDong.thoiGian)}.</div></div>`;
+
+  if (cauHoi) {
+    html += `<div class="hoi-ngay"><b>Câu nên hỏi tiếp</b>
+      <span class="hn-cau">${esc(cauHoi)}</span>
+      <button type="button" class="link hn-chep" data-chep="${esc(cauHoi)}">Chép câu này</button></div>`;
   }
 
+  /* Cờ Ảo: không bao giờ gập — đây là cảnh báo, không phải chi tiết */
   if (luat.coAo.length) {
     html += `<div class="co-ao"><h3>Cờ Ảo — ${luat.coAo.length} cờ</h3>` +
       luat.coAo.map((c) => `<div class="co-item">
@@ -180,56 +215,77 @@ function hienKetQua(luat, ai) {
       </div>`).join('') + '</div>';
   }
 
-  html += `<div class="viec v-${sl}"><b>Việc làm ngay</b>${esc(luat.hanhDong.viec)}
-    <div class="tg">Nhóm này nên chiếm ${esc(luat.hanhDong.thoiGian)}.</div></div>`;
-  html += '</section>';
+  /* Độ tin cậy thấp: cũng không gập */
+  if (tinThap && luat.ghiChuTinCay) {
+    html += `<div class="canh-bao">${esc(luat.ghiChuTinCay)}</div>`;
+  }
 
-  /* Lớp AI */
+  /* ── MỨC 2 — gập lại, ai nghi ngờ thì mở ─────────────────────────── */
+  html += `<details class="cham-ct">
+      <summary>Vì sao chấm vậy — bảng điểm 4 tiêu chí${tinThap ? '' : ` · độ tin cậy ${esc(luat.doTinCay)}`}</summary>
+      <div class="ct-than">
+        <p class="ly-do">${esc(luat.lyDoPhanLoai)} · Độ tin cậy: <b>${esc(luat.doTinCay)}</b></p>
+        <table><thead><tr><th>Điểm</th><th>Tiêu chí và căn cứ</th></tr></thead>
+        <tbody>${hangTieuChi(luat.tieuChi)}</tbody></table>`;
+
+  if (!tinThap && luat.ghiChuTinCay) {
+    html += `<div class="canh-bao">${esc(luat.ghiChuTinCay)}</div>`;
+  }
+  html += `</div></details></section>`;
+
+  /* ── Lớp AI — cũng gập, trừ khi nó lệch nhiều với lớp luật ───────── */
   if (ai) {
     if (ai.aiTat) {
       html += `<section class="card"><h2>Lớp AI</h2>
         <div class="canh-bao">${esc(ai.lyDo)}</div></section>`;
     } else {
       const lech = Math.abs((ai.tongDiem || 0) - luat.tongDiem);
-      html += `<section class="card">
-        <h2>Lớp AI — đối chiếu</h2>
-        <div class="dong-diem"><span class="so-diem">${ai.tongDiem}<span>/12 theo AI</span></span>
-        <span style="color:#6b6862">luật cứng chấm ${luat.tongDiem}/12</span></div>
+      html += '<section class="card">';
+
+      /* Lệch nhiều là tín hiệu "đừng tin máy" — phải hiện, không được gập */
+      if (lech >= 3) {
+        html += `<div class="canh-bao lech"><b>Hai lớp chấm lệch nhau ${lech} điểm</b>
+          (AI ${ai.tongDiem}/12, luật cứng ${luat.tongDiem}/12).
+          Đây là lead bạn nên tự đọc lại, đừng tin máy hoàn toàn.</div>`;
+      }
+      if (ai.tinNhanGoiY) {
+        html += `<div class="viec"><b>Tin nhắn gợi ý gửi tiếp</b>${esc(ai.tinNhanGoiY)}
+          <button type="button" class="link hn-chep" data-chep="${esc(ai.tinNhanGoiY)}">Chép tin nhắn</button></div>`;
+      }
+
+      html += `<details class="cham-ct">
+        <summary>Lớp AI đối chiếu — ${ai.tongDiem}/12${lech >= 3 ? '' : `, lệch ${lech} điểm so với luật cứng`}</summary>
+        <div class="ct-than">
         <table><thead><tr><th>Điểm</th><th>Tiêu chí và căn cứ</th></tr></thead><tbody>` +
         (ai.tieuChi || []).map((x) => `<tr>
           <td class="d">${Number(x.diem) || 0}/3</td>
           <td><b>${esc(x.ma)}</b><br><span style="color:#6b6862">${esc(x.canCu)}</span></td></tr>`).join('') +
         `</tbody></table>`;
-
-      if (lech >= 3) {
-        html += `<div class="canh-bao lech"><b>Hai lớp lệch nhau ${lech} điểm.</b>
-          Đây là lead bạn nên tự đọc lại, đừng tin máy hoàn toàn.</div>`;
-      }
       if (ai.diemMuChinh) {
         html += `<div class="canh-bao"><b>Điểm dễ bỏ sót:</b> ${esc(ai.diemMuChinh)}</div>`;
       }
-      if (ai.tinNhanGoiY) {
-        html += `<div class="viec"><b>Tin nhắn gợi ý gửi tiếp</b>${esc(ai.tinNhanGoiY)}</div>`;
-      }
-      html += '</section>';
+      html += `</div></details></section>`;
     }
   }
 
   khu.innerHTML = html;
+
+  /* Nút chép: sale đang vội, đừng bắt họ bôi đen bằng tay */
+  khu.querySelectorAll('[data-chep]').forEach((b) => {
+    b.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(b.dataset.chep);
+        const cu = b.textContent;
+        b.textContent = 'Đã chép';
+        setTimeout(() => { b.textContent = cu; }, 1500);
+      } catch {
+        b.textContent = 'Trình duyệt không cho chép — bôi đen rồi copy tay';
+      }
+    });
+  });
+
   khu.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-
-/* ══════════════════════════════════════════════════════════════════
-   CHÂN DUNG KHÁCH VÀ KHO HỒ SƠ
-
-   Vì sao phần này tồn tại: chấm điểm trả lời "gọi ai trước", chân dung trả lời
-   "ba tuần nữa mình đang đứng ở đâu với người này". Thứ sale phải trả tiền
-   không phải chỗ lưu — chỗ lưu thì miễn phí đầy — mà là việc KHÔNG PHẢI GÕ.
-   ══════════════════════════════════════════════════════════════════ */
-
-let chanDungHienTai = null;
-
-const NGUON_LEAD = ['Data sàn giao', 'Tự đăng bài', 'Khách giới thiệu', 'Quảng cáo công ty', 'Khác'];
 
 function dong(nhan, giaTri) {
   if (giaTri === '' || giaTri == null || (Array.isArray(giaTri) && !giaTri.length)) {
