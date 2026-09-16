@@ -27,9 +27,19 @@
     api_host: 'https://us.i.posthog.com',
     defaults: '2026-05-30',
     person_profiles: 'identified_only',
+
+    /* Bảy dòng dưới đây là phần TẮT BỚT so với mặc định của PostHog.
+       Riêng ba dòng heatmap / rageclick / dead_clicks: dòng defaults ở trên
+       tự bật chúng, phải tắt tay. Chúng ghi toạ độ chỗ người dùng bấm —
+       không phải nội dung, nhưng vẫn là "đọc thao tác", mà trang này hứa
+       là không làm. Ai bỏ ba dòng này thì phải sửa lại lời hứa ở dưới. */
     autocapture: false,
+    capture_heatmaps: false,
+    capture_dead_clicks: false,
+    rageclick: false,
     disable_session_recording: true,
-    mask_all_text: true
+    mask_all_text: true,
+    persistence: 'localStorage'   // không đặt cookie
   })
 </script>
 </head>
@@ -141,7 +151,7 @@ K: nhà anh ở. hai vợ chồng chốt rồi, tháng 12 hết hợp đồng th
         <ul class="gon">
           <li><b>Không dùng để huấn luyện mô hình.</b> Đây là mặc định của API Anthropic, trừ khi khách hàng cho phép rõ ràng.</li>
           <li><b>Công cụ này không ghi nội dung hội thoại vào nhật ký</b> ở bất kỳ đâu, và không lưu lại bản gốc.</li>
-          <li><b>Có đếm lượt truy cập, và đếm ẩn danh.</b> Trang dùng PostHog để biết mỗi ngày có bao nhiêu người vào, họ tới từ kênh nào, và bao nhiêu người thật sự bấm nút chấm. Nó đã được <b>tắt phần đọc thao tác và tắt phần quay màn hình</b>, nên nó không đọc chữ bạn gõ, không đọc nội dung hội thoại, không đọc hồ sơ khách. Thứ nó gửi đi khi bạn bấm chấm chỉ gồm: nhãn phân loại (NÓNG/ẤM/…), điểm số, và bạn có bật lớp AI hay không. Mã làm việc đó nằm ở <code>public/lib/dolen.js</code>, phép kiểm thử chặn rò rỉ nằm ở <code>test/dolen-tests.js</code> — cả hai công khai trên GitHub, đọc được, không phải tin lời.</li>
+          <li><b>Có đếm lượt truy cập, và đếm ẩn danh.</b> Trang dùng PostHog để biết mỗi ngày có bao nhiêu người vào, họ tới từ kênh nào, và bao nhiêu người thật sự bấm nút chấm. Nó đã được <b>tắt phần đọc thao tác và tắt phần quay màn hình</b>, nên nó không đọc chữ bạn gõ, không đọc nội dung hội thoại, không đọc hồ sơ khách. Nó cũng <b>không ghi lại chỗ bạn bấm trên màn hình</b> — bản đồ nhiệt đã tắt. Thứ nó gửi đi khi bạn bấm chấm chỉ gồm: nhãn phân loại (NÓNG/ẤM/…), điểm số, và bạn có bật lớp AI hay không. Nó lưu một <b>mã ngẫu nhiên trong trình duyệt của bạn</b> để không đếm một người thành hai người — mã đó không gắn với tên, email hay số điện thoại, và trang <b>không đặt cookie</b>. Mã làm việc đó nằm ở <code>public/lib/dolen.js</code>, phép kiểm thử chặn rò rỉ nằm ở <code>test/dolen-tests.js</code> — cả hai công khai trên GitHub, đọc được, không phải tin lời.</li>
           <li><b>Ngoài PostHog ra không có gì khác:</b> không Google Analytics, không pixel quảng cáo Facebook, không script bên thứ ba nào nữa.</li>
           <li><b>Hồ sơ khách bạn lưu thì không đi đâu cả.</b> Lớp AI chỉ nhận đoạn hội thoại đã che, không nhận hồ sơ.</li>
         </ul>
