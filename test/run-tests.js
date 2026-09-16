@@ -8,6 +8,7 @@ import { CA_KIEM_THU } from './fixtures.js';
 import { kiemThuWebhook } from './webhook-tests.js';
 import { kiemThuChanDung, kiemThuXoaTatCa } from './profile-tests.js';
 import { kiemThuDoLen } from './dolen-tests.js';
+import { kiemThuTaiChinh } from './taichinh-tests.js';
 
 let dat = 0;
 let truot = 0;
@@ -72,6 +73,9 @@ kiemThuWebhook(bao);
 
 console.log('\n=== 6. Lớp đo lường không rò nội dung ===\n');
 kiemThuDoLen(bao);
+
+console.log('\n=== 7. T1 Tài chính — chặn hồi quy lỗi sale báo 15/09 ===\n');
+kiemThuTaiChinh(bao);
 
 console.log(`\n──────────────\nĐạt: ${dat} · Trượt: ${truot}\n`);
 process.exit(truot > 0 ? 1 : 0);

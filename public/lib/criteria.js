@@ -51,7 +51,10 @@ const dem = (t, mau) => (t.match(new RegExp(mau, 'giu')) || []).length;
 const TIEN = '\\d+([.,]\\d+)?\\s*(tỷ|tỉ|triệu|tr\\b|củ\\b)';
 const VAY = 'vay|trả góp|ngân hàng|lãi suất|lãi\\b|gói vay|giải ngân';
 const VAY_SAU = 'thả nổi|sau ưu đãi|hết ưu đãi|lãi sau|duyệt vay|thẩm định|pre-?approve|chứng minh thu nhập';
-const VON = 'có sẵn|tự có|vốn|sẵn tiền|tiền mặt|đang có';
+/* Sale phản hồi 15/09: khách nói "có tài chính 5 tỷ" mà tool vẫn báo "chưa rõ tài chính".
+   Nguyên nhân: hai cách nói phổ biến nhất của người Việt — "tài chính" và "ngân sách" —
+   không có trong danh sách. Bổ sung cả các cách nói trả thẳng không vay. */
+const VON = 'có sẵn|tự có|vốn|sẵn tiền|tiền mặt|đang có|tài chính|ngân sách|khả năng chi|lo được|xoay được|chuẩn bị được|trả thẳng|trả một lần|thanh toán thẳng|thanh toán một lần|full tiền|cash\\b|tầm giá|trong khoảng';
 
 const QUYET_MANH = 'hai vợ chồng|vợ chồng (em|anh|mình)|chốt rồi|thống nhất rồi|(em|anh|tôi) (tự )?quyết|quyết định rồi|hai đứa';
 const QUYET_VUA = 'hỏi lại (vợ|chồng)|bàn với|hỏi ý|bố mẹ|gia đình|người nhà|về bàn';
@@ -87,23 +90,57 @@ const A7_LUA_DAO =
 
 /* ─────────── Trục 1: 4 tiêu chí ─────────── */
 
-function chamTaiChinh(t) {
+/**
+ * T1 — Tài chính.
+ *
+ * Sửa 16/09 sau phản hồi của một sale đang dùng thật: trước đây khách nêu hẳn
+ * một CON SỐ ngân sách mà chỉ được 1 điểm, rồi bị xếp vào "chưa rõ tài chính".
+ * Đó là thang điểm thưởng cho TỪ NGỮ thay vì thưởng cho THÔNG TIN — sai.
+ * Một con số cụ thể là bằng chứng mạnh hơn hẳn một chữ "vốn tự có" nói suông.
+ *
+ * Nhưng có một cái bẫy: chính lời chào hàng của sale ("căn này 3,2 tỷ") cũng là
+ * con số. Nên con số chỉ được 2 điểm khi nó đến từ nguồn đáng tin:
+ *   - tách được lời khách, tức con số đó là khách nói; hoặc
+ *   - sale tự gõ vào ô "ngân sách khách nêu".
+ * Không tách được thì giữ 1 điểm và nói rõ lý do, thay vì âm thầm thổi điểm.
+ *
+ * @param {string} t       Lời khách (đã tách nếu tách được)
+ * @param {object} boiCanh { nganSachTay: boolean, tachDuoc: boolean }
+ */
+function chamTaiChinh(t, boiCanh = {}) {
   const canCu = [];
   let diem = 0;
-  const coTien = co(t, TIEN);
+  const { nganSachTay = false, tachDuoc = false } = boiCanh;
+
+  const coTien = co(t, TIEN) || nganSachTay;
   const coVay = co(t, VAY);
   const coVaySau = co(t, VAY_SAU);
-  const coVon = co(t, VON);
+  const coVon = co(t, VON) || nganSachTay;
+
+  /* Con số có đáng tin không, hay có thể là giá sale tự báo? */
+  const conSoDangTin = nganSachTay || (co(t, TIEN) && tachDuoc);
 
   if (coVaySau && (coTien || coVon)) {
     diem = 3;
     canCu.push('Nhắc tới lãi sau ưu đãi / thẩm định vay — dấu hiệu đã tính toán thật');
-  } else if (coTien && (coVon || coVay)) {
+  } else if (conSoDangTin && (coVon || coVay)) {
+    diem = 3;
+    canCu.push(nganSachTay
+      ? 'Sale đã ghi nhận ngân sách khách nêu, và khách có nói về nguồn tiền'
+      : 'Khách nêu con số cụ thể VÀ nói được nguồn tiền (vốn tự có hoặc vay)');
+  } else if (conSoDangTin) {
     diem = 2;
-    canCu.push('Nêu được con số vốn tự có hoặc tỷ lệ vay');
+    canCu.push(nganSachTay
+      ? 'Sale đã ghi nhận ngân sách khách nêu — coi như khách đã nói được khả năng chi'
+      : 'Khách tự nêu một con số ngân sách cụ thể');
+  } else if (coVon || (coTien && coVay)) {
+    diem = 2;
+    canCu.push('Nói được về nguồn tiền (vốn tự có / vay), chưa có con số chắc');
   } else if (coVay || coTien) {
     diem = 1;
-    canCu.push('Có nhắc tới tiền hoặc vay nhưng chưa có con số rõ');
+    canCu.push(co(t, TIEN) && !tachDuoc
+      ? 'Có con số tiền trong hội thoại nhưng KHÔNG tách được lời khách khỏi lời sale — có thể là giá sale báo, nên chưa tính đủ điểm'
+      : 'Có nhắc tới tiền hoặc vay nhưng chưa có con số rõ');
   } else {
     canCu.push('Không đả động gì tới tài chính');
   }
@@ -282,7 +319,10 @@ export function chamDiem(vanBan, coTay = {}) {
   }
 
   const tc = [
-    { ma: 'T1', ten: 'Tài chính', ...chamTaiChinh(t) },
+    { ma: 'T1', ten: 'Tài chính', ...chamTaiChinh(t, {
+        nganSachTay: Number(coTay.nganSachKhachNeu) > 0,
+        tachDuoc
+      }) },
     { ma: 'T2', ten: 'Quyền quyết định', ...chamQuyetDinh(t) },
     { ma: 'T3', ten: 'Nhu cầu thực', ...chamNhuCau(t) },
     { ma: 'T4', ten: 'Thời điểm & đã đi xem', ...chamThoiDiem(t) }
