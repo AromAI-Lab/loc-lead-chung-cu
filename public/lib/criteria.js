@@ -287,7 +287,23 @@ function timCoAo(t, coTay = {}) {
   const soCauHoiGia = dem(t, HOI_CHUNG);
   const soCuThe = dem(t, HOI_CU_THE);
   const coTinHieuKhac = co(t, TIEN, VAY, LY_DO, QUYET_MANH, QUYET_VUA, DA_XEM, MOC_TG);
-  if (soCauHoiGia >= 2 && soCuThe === 0 && !coTinHieuKhac) {
+
+  /* Thêm 16/09/2026. Trước đây A3 được chặn một cách TÌNH CỜ: cờ Ảo quét toàn
+     hội thoại, nên câu báo giá của chính sale ("dạ 2PN từ 3,2 tỷ ạ") bị đếm
+     thành tín hiệu tiền của khách và làm tắt A3. Khi sửa để quét đúng lời
+     khách, chỗ chặn tình cờ đó mất, và ca "khách thật mới tìm hiểu" bị gắn A3.
+
+     Nên phải chặn có chủ đích: khách TỰ NHẬN mình đang tìm hiểu, chưa vội,
+     xem dần — thì đó là khách thật còn sớm, không phải người né câu hỏi.
+     Môi giới đối thủ đi dò giá không nói "chị cũng chưa biết nữa"; họ hỏi rất
+     trúng và rất nhanh. Tự nhận mơ hồ là bằng chứng thành thật, không phải
+     bằng chứng đáng ngờ.
+
+     Đây đúng ca mà đề bài sản phẩm đặt lên hàng đầu: điểm thấp KHÔNG phải là
+     ảo. Xếp nhầm ở đây là ném đi lead thật — lỗi mà tool đối thủ đang mắc. */
+  const tuNhanMoiTimHieu = co(t, MO_HO);
+
+  if (soCauHoiGia >= 2 && soCuThe === 0 && !coTinHieuKhac && !tuNhanMoiTimHieu) {
     co_.push({
       ma: 'A3',
       ten: 'Chỉ hỏi giá, né mọi câu hỏi ngược',
@@ -354,7 +370,17 @@ export function chamDiem(vanBan, coTay = {}) {
   ];
 
   const tongDiem = tc.reduce((s, x) => s + x.diem, 0);
-  const coAo = timCoAo(tOanBo, coTay);
+  /* Cờ Ảo nói người KIA là ai, nên phải quét trên LỜI KHÁCH, không phải toàn
+     hội thoại. Sửa 16/09/2026 sau khi đo được lỗi thật: câu chào hàng bình
+     thường của chính sale — "để em gửi anh bảng hàng" — làm khách của họ dính
+     cờ A1 "nghi môi giới đối thủ", mà A1 là cờ quyết định nên một cờ là đủ xếp
+     ẢO. Một lead 9/12 NÓNG bị đẩy thành ẢO, và công cụ bảo sale vứt nó đi.
+
+     Không tách được lời khách thì đành quét toàn bộ — nhưng lúc đó độ tin cậy
+     đã là "thấp" và ghi chú bên dưới nói rõ cờ có thể oan.
+
+     Cờ A4/A5/A6 đến từ ô sale tự đánh dấu nên không chịu ảnh hưởng. */
+  const coAo = timCoAo(tachDuoc ? t : tOanBo, coTay);
   const khongDau = thieuDauTiengViet(tOanBo);
 
   // Cờ quyết định (A1 môi giới dò giá, A7 lừa đảo) nói lên người này LÀ AI,
@@ -399,7 +425,7 @@ export function chamDiem(vanBan, coTay = {}) {
         : null,
       tachDuoc
         ? null
-        : 'Không tách được lời khách khỏi lời sale nên điểm có thể cao hơn thực tế. Dán hội thoại có tiền tố "K:" cho khách và "S:" cho sale để chấm chính xác hơn.'
+        : 'Không tách được lời khách khỏi lời sale, nên điểm có thể cao hơn thực tế VÀ cờ Ảo có thể bị gắn oan vì chính lời chào hàng của bạn ("bảng hàng", "chiết khấu") bị tính nhầm sang khách. Dán hội thoại có tiền tố "K:" cho khách và "S:" cho sale để chấm chính xác hơn.'
     ].filter(Boolean).join(' ') || null
   };
 }

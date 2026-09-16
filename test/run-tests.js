@@ -10,6 +10,7 @@ import { kiemThuChanDung, kiemThuXoaTatCa } from './profile-tests.js';
 import { kiemThuDoLen } from './dolen-tests.js';
 import { kiemThuTaiChinh } from './taichinh-tests.js';
 import { kiemThuKhongDau } from './khong-dau-tests.js';
+import { kiemThuLoiSale } from './loi-sale-tests.js';
 
 let dat = 0;
 let truot = 0;
@@ -80,6 +81,9 @@ kiemThuTaiChinh(bao);
 
 console.log('\n=== 8. Cảnh báo hội thoại gõ không dấu ===\n');
 kiemThuKhongDau(bao);
+
+console.log('\n=== 9. Lời sale không được gắn cờ cho khách ===\n');
+kiemThuLoiSale(bao);
 
 console.log(`\n──────────────\nĐạt: ${dat} · Trượt: ${truot}\n`);
 process.exit(truot > 0 ? 1 : 0);
