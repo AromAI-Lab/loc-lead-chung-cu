@@ -7,6 +7,31 @@
 <meta name="description" content="Dán hội thoại Zalo, biết ngay lead nào Ảo để bỏ, lead nào Nóng để gọi trước. Dữ liệu cá nhân được che trước khi rời khỏi máy bạn.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🎯</text></svg>">
 <link rel="stylesheet" href="/style.css">
+
+<!-- ══ Đo lượt truy cập, ẩn danh ══════════════════════════════════════════
+     Bốn dòng cấu hình dưới đây chính là lời hứa in ở khối "Dữ liệu của bạn đi đâu":
+       autocapture: false           → không ghi lại chữ trên thứ người dùng bấm
+       disable_session_recording    → không quay lại màn hình
+       mask_all_text: true          → chốt chặn thứ hai cho cùng việc đó
+       person_profiles: identified_only → khách ẩn danh không bị lập hồ sơ người dùng
+     Nội dung hội thoại đi theo đường riêng (/api/score), lớp đo không chạm tới.
+     Bộ lọc thuộc tính ở public/lib/dolen.js, kiểm thử chặn rò rỉ ở test/dolen-tests.js.
+
+     Khoá phc_ dưới đây là khoá CÔNG KHAI phía trình duyệt: chỉ gửi dữ liệu VÀO
+     được, không đọc dữ liệu RA được. Nằm trong repo công khai là đúng thiết kế.
+     ═══════════════════════════════════════════════════════════════════════ -->
+<script>
+!function(t,e){var o,n,p,r;e.__SV||(window.posthog && window.posthog.__loaded)||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}p||((p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",p.onerror=function(){p=null},(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r));var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],Object.defineProperty(u,"toString",{configurable:!0,enumerable:!0,writable:!0,value:function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e}}),Object.defineProperty(u.people,"toString",{configurable:!0,enumerable:!0,writable:!0,value:function(){return u.toString(1)+".people (stub)"}}),o="du vu fu pu yu init Bu Hu Nu qu Vu Kl ju Zu Ou th eh ih nh sh rh capture getExtension zu hu uh calculateEventProperties ah register register_once register_for_session unregister unregister_for_session ph Lu hh getFeatureFlag getFeatureFlagPayload getFeatureFlagResult getAllFeatureFlags isFeatureEnabled reloadFeatureFlags updateFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey displaySurvey cancelPendingSurvey canRenderSurvey canRenderSurveyAsync gh identify setPersonProperties unsetPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset mh shutdown setIdentity clearIdentity get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException addExceptionStep captureLog startExceptionAutocapture stopExceptionAutocapture loadToolbar get_property getSessionProperty dh Ku createPersonProfile setInternalOrTestUser fh bu opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing get_explicit_consent_status is_capturing clear_opt_in_out_capturing Qu debug Xl Os getPageViewId captureTraceFeedback captureTraceMetric Pu".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+
+  posthog.init('phc_xh3xvofYqt897NeVoBtQvDU8dyWFbfGJrwVfDFRDoCTL', {
+    api_host: 'https://us.i.posthog.com',
+    defaults: '2026-05-30',
+    person_profiles: 'identified_only',
+    autocapture: false,
+    disable_session_recording: true,
+    mask_all_text: true
+  })
+</script>
 </head>
 <body>
 
@@ -116,7 +141,8 @@ K: nhà anh ở. hai vợ chồng chốt rồi, tháng 12 hết hợp đồng th
         <ul class="gon">
           <li><b>Không dùng để huấn luyện mô hình.</b> Đây là mặc định của API Anthropic, trừ khi khách hàng cho phép rõ ràng.</li>
           <li><b>Công cụ này không ghi nội dung hội thoại vào nhật ký</b> ở bất kỳ đâu, và không lưu lại bản gốc.</li>
-          <li><b>Không có công cụ theo dõi nào</b> trong trang: không Google Analytics, không pixel quảng cáo, không script bên thứ ba. Toàn bộ trang chỉ có đúng một lời gọi mạng, chính là lời gọi chấm điểm ở trên.</li>
+          <li><b>Có đếm lượt truy cập, và đếm ẩn danh.</b> Trang dùng PostHog để biết mỗi ngày có bao nhiêu người vào, họ tới từ kênh nào, và bao nhiêu người thật sự bấm nút chấm. Nó đã được <b>tắt phần đọc thao tác và tắt phần quay màn hình</b>, nên nó không đọc chữ bạn gõ, không đọc nội dung hội thoại, không đọc hồ sơ khách. Thứ nó gửi đi khi bạn bấm chấm chỉ gồm: nhãn phân loại (NÓNG/ẤM/…), điểm số, và bạn có bật lớp AI hay không. Mã làm việc đó nằm ở <code>public/lib/dolen.js</code>, phép kiểm thử chặn rò rỉ nằm ở <code>test/dolen-tests.js</code> — cả hai công khai trên GitHub, đọc được, không phải tin lời.</li>
+          <li><b>Ngoài PostHog ra không có gì khác:</b> không Google Analytics, không pixel quảng cáo Facebook, không script bên thứ ba nào nữa.</li>
           <li><b>Hồ sơ khách bạn lưu thì không đi đâu cả.</b> Lớp AI chỉ nhận đoạn hội thoại đã che, không nhận hồ sơ.</li>
         </ul>
         <p class="nho-hon">Nói rõ chỗ này vì Luật Bảo vệ dữ liệu cá nhân có hiệu lực từ 01/01/2026, và vì bạn có quyền biết dữ liệu khách của mình đi đâu. Không muốn gửi đi thì bỏ chọn ô <i>Chấm thêm bằng AI</i> — công cụ vẫn chạy đủ.</p>

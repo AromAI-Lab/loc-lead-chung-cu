@@ -3,8 +3,15 @@ import { chamDiem } from '/lib/criteria.js';
 import { HOI_THOAI_MAU } from '/lib/samples.js';
 import { trichChanDung } from '/lib/profile.js';
 import * as kho from '/lib/store.js';
+import { ghi } from '/lib/dolen.js';
 
 const $ = (id) => document.getElementById(id);
+
+/* Phân biệt "bấm thử ca mẫu" với "chấm hội thoại thật của mình".
+   Hai thứ này là hai mức độ quan tâm rất khác nhau, gộp chung thì
+   số liệu phân phối vô nghĩa: 100 người bấm ca mẫu không bằng
+   5 người dán hội thoại thật. */
+let dangDungCaMau = false;
 
 /** Đổi tên phân loại có dấu thành slug để dùng trong CSS. Thứ tự kiểm tra có chủ ý:
  *  "LẠNH SÂU" phải được bắt trước "LẠNH". */
@@ -27,8 +34,13 @@ document.querySelectorAll('[data-mau]').forEach((b) => {
     $('giaCan').value = t.giaCan ?? '';
     $('nganSach').value = t.nganSach ?? '';
     $('hoiThoai').focus();
+    dangDungCaMau = true;
+    ghi('thu_ca_mau', { loai_mau: b.dataset.mau });
   });
 });
+
+/* Người dùng tự gõ hay tự dán thì không còn là ca mẫu nữa */
+$('hoiThoai').addEventListener('input', () => { dangDungCaMau = false; });
 
 $('chay').addEventListener('click', chay);
 
@@ -75,6 +87,17 @@ async function chay() {
     const luat = chamDiem(sach, coTay);
     hienKetQua(luat, null);
     dungChanDung(sach, luat, null, coTay);
+
+    /* Đo: chỉ nhãn phân loại và con số, không có một chữ nào của hội thoại.
+       Xem public/lib/dolen.js và test/dolen-tests.js. */
+    ghi('bam_cham', {
+      du_lieu_du: luat.duLieuDu === true,
+      phan_loai: luat.duLieuDu ? luat.phanLoai : undefined,
+      tong_diem: luat.duLieuDu ? luat.tongDiem : undefined,
+      do_tin_cay: luat.duLieuDu ? luat.doTinCay : undefined,
+      co_ai: $('dungAI').checked === true,
+      tu_ca_mau: dangDungCaMau
+    });
 
     /* Bước 3 — lớp AI, chỉ khi người dùng bật */
     if ($('dungAI').checked && luat.duLieuDu) {
@@ -285,6 +308,7 @@ function veFormLuu() {
       chanDungHienTai = daLuu;   // giữ id để bấm lần nữa là cập nhật, không tạo bản trùng
       bao.innerHTML = 'Đã lưu. <button type="button" class="link" data-man="hoso">Xem hồ sơ đã lưu</button>';
       bao.className = 'bao ok';
+      ghi('luu_ho_so', { phan_loai: hoSo.phanLoai, tu_ca_mau: dangDungCaMau });
       capNhatDem();
       noiCacNutChuyenMan();
     } else {
