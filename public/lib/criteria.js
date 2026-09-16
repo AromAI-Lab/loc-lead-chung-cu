@@ -1,5 +1,7 @@
 /**
- * Động cơ chấm điểm lead căn hộ chung cư — lớp luật cứng.
+ * Động cơ chấm điểm lead bất động sản — lớp luật cứng.
+ * Bộ tiêu chí hiện hiệu chuẩn cho CĂN HỘ CHUNG CƯ. Xem mục "Mở rộng phân khúc"
+ * trong docs/scoring-criteria.md trước khi dùng cho đất nền hay nhà phố.
  *
  * Chạy hoàn toàn trong trình duyệt, không gọi mạng, không cần API key.
  * Đây là lưới an toàn: kể cả khi lớp AI hỏng, mất mạng hay hết hạn mức,

@@ -293,3 +293,15 @@ input[type=text],input[type=search],select{width:100%;padding:9px;border:1px sol
    ngược lại, nằm dưới cùng vì chỉ mở khi nghi ngờ. */
 .minh-bach{margin-top:16px;border-top:1px solid var(--vien);padding-top:12px}
 .lead-phu{font-size:14px;color:var(--nhat);margin:-4px 0 14px}
+
+/* Tên sản phẩm viết hoa — cần giãn chữ nhẹ cho dễ đọc, và gạch nối nhạt đi
+   để hai vế tách ra bằng thị giác thay vì bằng dấu câu. */
+.brand{letter-spacing:.3px;line-height:1.35}
+.brand .gach{color:#7d7a74;margin:0 2px;font-weight:400}
+.pham-vi{margin:10px 0 0;color:#a9a6a0;font-size:13px;line-height:1.5}
+.pham-vi b{color:#d8d5cf}
+
+@media (max-width:560px){
+  .brand{font-size:17px}
+  .pham-vi{font-size:12px}
+}

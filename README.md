@@ -1,4 +1,9 @@
-# Lọc lead chung cư
+# LỌC LEAD - XÂY HỒ SƠ KHÁCH HÀNG
+
+*Chạy thật: https://loc-lead-chung-cu.vercel.app — địa chỉ giữ nguyên tên cũ vì các link đã phát đi đều trỏ về đó.*
+
+> **Phạm vi:** dùng cho sale bất động sản. Bộ tiêu chí hiện **hiệu chuẩn cho căn hộ chung cư**;
+> đất nền và nhà phố vẫn chấm được nhưng độ chính xác thấp hơn — xem *Mở rộng phân khúc* ở cuối.
 
 **Dán hội thoại Zalo. Trong 10 giây biết lead nào Ảo để bỏ, lead nào Nóng để gọi trước — và có ngay hồ sơ khách đã điền sẵn, không phải gõ chữ nào.**
 
@@ -212,3 +217,22 @@ Sau khi deploy, đặt các biến sau trong **Environment Variables** của Ver
 ---
 
 *Công cụ hỗ trợ ra quyết định, không thay thế phán đoán của sale.*
+
+
+## Mở rộng phân khúc — cái gì dùng lại được, cái gì không
+
+Tên sản phẩm không khoá vào chung cư, nhưng **bộ tiêu chí thì đang khoá**. Ghi rõ ở đây để không ai nhầm.
+
+| Phần | Chuyển sang đất nền / nhà phố được không |
+|---|---|
+| **T1 Tài chính** | Được. Cách nói về tiền, vốn, vay giống nhau ở mọi phân khúc |
+| **T2 Quyền quyết định** | Được. "Hai vợ chồng", "hỏi lại nhà" là chuyện chung |
+| **T3 Nhu cầu thực** | **Không.** Đang bắt "2PN/3PN", "diện tích m2", "tầng", "hướng" — đất nền hỏi lô, mặt tiền, đường trước nhà; nhà phố hỏi số tầng xây, hẻm mấy mét |
+| **T4 Thời điểm** | Được |
+| **Cờ Ảo** | **Một phần.** "Quỹ căn", "rổ hàng", "lock căn", "booking", "primary" là từ của thị trường sơ cấp — đúng với chung cư và đất nền dự án, **không đúng** với nhà phố thổ cư mua đi bán lại |
+
+**Ước lượng: khoảng 70% dùng lại được.** Phần phải viết riêng cho mỗi phân khúc là T3 và một nửa bộ cờ Ảo.
+
+**Cách mở rộng đúng** (chưa làm): thêm ô *chọn phân khúc* ở đầu trang, mỗi phân khúc nạp một bộ từ khoá T3 và một bộ cờ Ảo riêng, bốn tiêu chí và ngưỡng điểm giữ nguyên.
+
+**Cách mở rộng sai:** đổi tên cho rộng ra rồi để nguyên bộ tiêu chí chung cư, và không nói gì. Sale đất nền dùng thử thấy chấm sai sẽ bỏ luôn, và họ không quay lại lần hai.

@@ -13,6 +13,12 @@ const $ = (id) => document.getElementById(id);
    5 người dán hội thoại thật. */
 let dangDungCaMau = false;
 
+/* Hồ sơ khách của lần chấm hiện tại, dùng chung giữa phần vẽ chân dung và
+   nút Lưu. Khai báo ở đây chứ không nằm lẫn giữa các hàm — 16/09 nó từng bị
+   xoá nhầm khi sửa bố cục, làm cả khối Chân dung khách biến mất mà npm test
+   vẫn xanh, vì test không chạy được phần gắn vào trang. */
+let chanDungHienTai = null;
+
 /** Đổi tên phân loại có dấu thành slug để dùng trong CSS. Thứ tự kiểm tra có chủ ý:
  *  "LẠNH SÂU" phải được bắt trước "LẠNH". */
 function slugLoai(pl) {
