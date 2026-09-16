@@ -19,6 +19,10 @@ let dangDungCaMau = false;
    vẫn xanh, vì test không chạy được phần gắn vào trang. */
 let chanDungHienTai = null;
 
+/* Danh sách nguồn lead cho ô Nguồn trong form lưu hồ sơ. */
+const NGUON_LEAD = ['Data sàn giao', 'Tự đăng bài', 'Khách giới thiệu', 'Quảng cáo công ty', 'Khác'];
+
+
 /** Đổi tên phân loại có dấu thành slug để dùng trong CSS. Thứ tự kiểm tra có chủ ý:
  *  "LẠNH SÂU" phải được bắt trước "LẠNH". */
 function slugLoai(pl) {

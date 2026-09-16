@@ -6,9 +6,13 @@
   "type": "module",
   "scripts": {
     "dev": "node dev-server.js",
-    "test": "node test/run-tests.js"
+    "test": "eslint . && node test/run-tests.js",
+    "lint": "eslint ."
   },
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "eslint": "^10.10.0"
   }
 }

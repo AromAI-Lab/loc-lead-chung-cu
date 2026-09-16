@@ -109,6 +109,29 @@ const A7_LUA_DAO =
  * @param {string} t       Lời khách (đã tách nếu tách được)
  * @param {object} boiCanh { nganSachTay: boolean, tachDuoc: boolean }
  */
+/**
+ * Đoạn chat này có gõ dấu tiếng Việt không?
+ *
+ * Vì sao cần: toàn bộ bộ từ khoá viết CÓ DẤU ("tài chính", "vợ chồng", "tỷ").
+ * Người gõ không dấu thì gần như không khớp từ nào. Đo thật ngày 16/09/2026:
+ * cùng một hội thoại, có dấu chấm NÓNG 9/12, bỏ dấu chấm LẠNH 3/12 — lệch
+ * 6 điểm, và máy không báo gì cả. Xếp một khách nóng vào nhóm "chạm 2 tuần
+ * một lần" là kiểu sai tệ nhất: sai âm thầm.
+ *
+ * Bản vá này KHÔNG cố chấm đúng cho văn bản không dấu — bỏ dấu rồi so khớp
+ * đẻ ra nhầm lẫn mới ("vốn" và "vơn", "tỷ" và "ti"), phải làm cẩn thận và có
+ * bộ kiểm thử riêng. Ở đây chỉ làm một việc: KHÔNG GIẤU chuyện đó nữa.
+ *
+ * Ngưỡng: tiếng Việt có dấu thường có 15–25% ký tự mang dấu. Dưới 4% thì
+ * gần như chắc chắn là gõ không dấu.
+ */
+function thieuDauTiengViet(t) {
+  const chu = String(t || '').match(/[a-zà-ỹA-ZÀ-ỸđĐ]/g) || [];
+  if (chu.length < 40) return false;            // quá ngắn để kết luận
+  const coDau = String(t).match(/[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÈÉẺẼẸÊỀẾỂỄỆÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴĐ]/g) || [];
+  return (coDau.length / chu.length) < 0.04;
+}
+
 function chamTaiChinh(t, boiCanh = {}) {
   const canCu = [];
   let diem = 0;
@@ -332,6 +355,7 @@ export function chamDiem(vanBan, coTay = {}) {
 
   const tongDiem = tc.reduce((s, x) => s + x.diem, 0);
   const coAo = timCoAo(tOanBo, coTay);
+  const khongDau = thieuDauTiengViet(tOanBo);
 
   // Cờ quyết định (A1 môi giới dò giá, A7 lừa đảo) nói lên người này LÀ AI,
   // nên một cờ là đủ kết luận. Các cờ còn lại chỉ là tình huống, cần 2 cờ.
@@ -367,10 +391,16 @@ export function chamDiem(vanBan, coTay = {}) {
     lyDoPhanLoai,
     hanhDong: HANH_DONG[phanLoai],
     tachDuocLoiKhach: tachDuoc,
-    doTinCay: !tachDuoc ? 'thấp' : soTu < 60 ? 'thấp' : soTu < 150 ? 'trung bình' : 'khá',
-    ghiChuTinCay: tachDuoc
-      ? null
-      : 'Không tách được lời khách khỏi lời sale nên điểm có thể cao hơn thực tế. Dán hội thoại có tiền tố "K:" cho khách và "S:" cho sale để chấm chính xác hơn.'
+    doTinCay: (khongDau || !tachDuoc) ? 'thấp' : soTu < 60 ? 'thấp' : soTu < 150 ? 'trung bình' : 'khá',
+    thieuDau: khongDau,
+    ghiChuTinCay: [
+      khongDau
+        ? 'Đoạn chat này gõ KHÔNG DẤU. Bộ tiêu chí dò theo tiếng Việt có dấu, nên điểm gần như chắc chắn THẤP HƠN THỰC TẾ — một khách nóng có thể bị xếp nhầm xuống Lạnh. Nếu bản gốc có dấu, dán lại bản có dấu rồi chấm lại.'
+        : null,
+      tachDuoc
+        ? null
+        : 'Không tách được lời khách khỏi lời sale nên điểm có thể cao hơn thực tế. Dán hội thoại có tiền tố "K:" cho khách và "S:" cho sale để chấm chính xác hơn.'
+    ].filter(Boolean).join(' ') || null
   };
 }
 
