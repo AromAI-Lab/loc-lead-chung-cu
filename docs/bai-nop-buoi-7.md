@@ -153,7 +153,7 @@ Vì sao kiểm thử không thấy: các phép đó chạy trên hội thoại m
 
 Hai việc em làm sau đó:
 - Gắn **ESLint luật `no-undef`** để bắt lỗi cắt nhầm — và **kiểm chứng bằng cách xoá lại dòng đó rồi chạy thử**, thấy nó chỉ ra đúng chỗ.
-- Thêm **21 phép kiểm thử mới** viết từ hội thoại thật, không phải hội thoại nghĩ ra. Tổng 115 phép.
+- Thêm **21 phép kiểm thử mới** viết từ hội thoại thật, không phải hội thoại nghĩ ra. Tổng lúc đó 115 phép — thêm phần chuẩn hoá đầu vào sáng nay thì lên 167.
 
 **Bài học:** kiểm thử xanh chứng minh mã chạy đúng như người viết nghĩ. Nó không chứng minh người viết nghĩ đúng. Chỉ có gõ một đoạn chat thật vào trang thật rồi nhìn kết quả mới trả lời được câu đó.
 

@@ -5,6 +5,26 @@
 
 ---
 
+## 0. Trạng thái Campus — cập nhật 17/09/2026
+
+**95/105 điểm (90%).** Buổi 7 đã nộp và đủ **10/10**.
+
+| Bài | Điểm |
+|---|---|
+| Tuần 0 (3 bài) · Buổi 1–6 · Demo Day | đủ điểm |
+| **Buổi 7 — Đưa ra cho người lạ dùng thật** | **10/10** (nộp 17/09) |
+| Buổi 8 — Một agent làm thay bạn một việc lặp lại | **chưa mở**, 0/10 |
+
+Còn lại: **đề Buổi 8 mở thì làm** (buổi học T5 17/09), và **Demo Day CN 20/09**.
+
+Bài nộp Buổi 7 nguyên văn nằm ở `docs/bai-nop-buoi-7.md`. Hai biểu đồ PostHog đã tạo sẵn để chụp minh chứng:
+- Bấm chấm, ca mẫu so với hội thoại thật: https://us.posthog.com/project/611781/insights/GKXr3LCm
+- Ba kênh theo `utm_source`: https://us.posthog.com/project/611781/insights/vD2hbS0E
+
+Biểu mẫu thu email (Bài 4) đã xuất bản: https://docs.google.com/forms/d/e/1FAIpQLScVBBpD5vCpCEkFTXXZgXy1CLNwWMVp6wK5oS0UlqtkVQ_V_Q/viewform
+
+---
+
 ## 1. Một phút bối cảnh
 
 | | |
