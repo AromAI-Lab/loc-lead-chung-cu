@@ -17,7 +17,47 @@
  * Chi tiết bộ tiêu chí: xem docs/scoring-criteria.md
  */
 
-const co = (t, ...tu) => tu.some((x) => new RegExp(x, 'iu').test(t));
+import { chuanHoa, mauBoDau } from './chuanhoa.js';
+
+/* ─────────── So khớp trên CẢ HAI dạng: có dấu và bỏ dấu ───────────
+
+   Trước 17/09/2026 chỉ so khớp trên văn bản gốc. Hội thoại gõ không dấu thì
+   gần như không khớp từ nào — đo được lệch 6 điểm và máy im lặng.
+
+   Nay mỗi mẫu được thử hai lần: nguyên văn trên văn bản gốc (chính xác nhất),
+   và bản bỏ dấu trên văn bản đã bỏ dấu + mở viết tắt. Một trong hai khớp là
+   tính. Các nhánh nguy hiểm khi bỏ dấu ("lãi" đụng "lại") đã bị loại khỏi vế
+   thứ hai — xem CAM_BO_DAU trong chuanhoa.js.
+
+   Hai bộ nhớ đệm bên dưới chỉ để khỏi chuẩn hoá lại cùng một chuỗi hàng chục
+   lần trong một lần chấm. Bộ nhớ văn bản giữ tối đa 8 mục rồi xoá sạch: một
+   lần chấm chỉ dùng tới hai chuỗi (lời khách và toàn hội thoại). */
+
+const _boNhoVanBan = new Map();
+function dangChuan(t) {
+  const k = String(t == null ? '' : t);
+  if (_boNhoVanBan.has(k)) return _boNhoVanBan.get(k);
+  const v = chuanHoa(k);
+  if (_boNhoVanBan.size > 8) _boNhoVanBan.clear();
+  _boNhoVanBan.set(k, v);
+  return v;
+}
+
+const _boNhoMau = new Map();
+function mauChuan(mau) {
+  if (_boNhoMau.has(mau)) return _boNhoMau.get(mau);
+  const v = mauBoDau(mau);
+  _boNhoMau.set(mau, v);
+  return v;
+}
+
+const khopMot = (t, mau) => {
+  if (new RegExp(mau, 'iu').test(t)) return true;
+  const m = mauChuan(mau);
+  return m ? new RegExp(m, 'iu').test(dangChuan(t)) : false;
+};
+
+const co = (t, ...tu) => tu.some((x) => khopMot(t, x));
 
 /**
  * Tách riêng lời của KHÁCH ra khỏi lời của sale.
@@ -46,49 +86,74 @@ export function tachLoiKhach(vanBan) {
   }
   return { loiKhach: String(vanBan || ''), tachDuoc: false };
 }
-const dem = (t, mau) => (t.match(new RegExp(mau, 'giu')) || []).length;
+/* Đếm trên cả hai dạng rồi lấy số lớn hơn.
+   Không cộng hai số lại: văn bản có dấu thì cùng một chỗ sẽ khớp ở cả hai vế
+   và bị đếm hai lần. Lấy số lớn hơn thì không bao giờ đếm thiếu, cũng không
+   bao giờ đếm đúp. */
+const dem = (t, mau) => {
+  const a = (String(t == null ? '' : t).match(new RegExp(mau, 'giu')) || []).length;
+  const m = mauChuan(mau);
+  const b = m ? (dangChuan(t).match(new RegExp(m, 'giu')) || []).length : 0;
+  return Math.max(a, b);
+};
 
 /* ─────────── Từ khoá tín hiệu ─────────── */
 
-const TIEN = '\\d+([.,]\\d+)?\\s*(tỷ|tỉ|triệu|tr\\b|củ\\b)';
-const VAY = 'vay|trả góp|ngân hàng|lãi suất|lãi\\b|gói vay|giải ngân';
-const VAY_SAU = 'thả nổi|sau ưu đãi|hết ưu đãi|lãi sau|duyệt vay|thẩm định|pre-?approve|chứng minh thu nhập';
+const TIEN = '\\d+([.,]\\d+)?\\s*(tỷ|tỉ|triệu|tr\\b|củ\\b|billion|bil\\b|million|mil\\b)';
+/* Chữ "vay" đứng trơ đã bị siết lại, KHÔNG phải vì tiếng Việt có dấu, mà vì
+   bỏ dấu thì "vậy" ra đúng mặt chữ "vay" — và "giá bao nhiêu vậy em" là câu
+   hỏi phổ thông nhất của khách. Siết ở đây chứ không siết trong lớp bỏ dấu,
+   vì sale gõ thẳng không dấu thì văn bản GỐC đã là "vay" rồi: chặn ở lớp bỏ
+   dấu là chặn hụt. Bắt được lúc chạy thử 17/09/2026.
+   Giá phải trả: "anh vay 2 tỷ" viết trơ không cue vẫn bắt được nhờ "vay \\d",
+   nhưng một câu như "anh vay đây" thì mất. Đổi lại không còn nhận nhầm cả
+   một lớp hội thoại. */
+const VAY = '(phải|cần|định|tính|dự tính|chắc|sẽ|muốn|đang|đi|nên|được|không|có|hỗ trợ|xin|lại) vay|' +
+  'vay (ngân hàng|tiền|vốn|thêm|bao nhiêu|được|gói|mua|thế chấp|thì)|vay \\d|' +
+  'trả góp|ngân hàng|lãi suất|lãi\\b|gói vay|giải ngân|loan|mortgage|installment|interest rate|bank package';
+const VAY_SAU = 'thả nổi|sau ưu đãi|hết ưu đãi|lãi sau|duyệt vay|thẩm định|pre-?approve|chứng minh thu nhập|floating rate|after promo|proof of income|credit approval';
 /* Sale phản hồi 15/09: khách nói "có tài chính 5 tỷ" mà tool vẫn báo "chưa rõ tài chính".
    Nguyên nhân: hai cách nói phổ biến nhất của người Việt — "tài chính" và "ngân sách" —
    không có trong danh sách. Bổ sung cả các cách nói trả thẳng không vay. */
-const VON = 'có sẵn|tự có|vốn|sẵn tiền|tiền mặt|đang có|tài chính|ngân sách|khả năng chi|lo được|xoay được|chuẩn bị được|trả thẳng|trả một lần|thanh toán thẳng|thanh toán một lần|full tiền|cash\\b|tầm giá|trong khoảng';
+const VON = 'có sẵn|tự có|vốn|sẵn tiền|tiền mặt|đang có|tài chính|ngân sách|khả năng chi|lo được|xoay được|chuẩn bị được|trả thẳng|trả một lần|thanh toán thẳng|thanh toán một lần|full tiền|cash\\b|tầm giá|trong khoảng|budget|own fund|self-?fund|full payment|pay in full|afford';
 
-const QUYET_MANH = 'hai vợ chồng|vợ chồng (em|anh|mình)|chốt rồi|thống nhất rồi|(em|anh|tôi) (tự )?quyết|quyết định rồi|hai đứa';
-const QUYET_VUA = 'hỏi lại (vợ|chồng)|bàn với|hỏi ý|bố mẹ|gia đình|người nhà|về bàn';
-const QUYET_HO = 'hỏi hộ|hỏi giùm|hỏi giúp|người quen nhờ|bạn (em|anh) nhờ';
+const QUYET_MANH = 'hai vợ chồng|vợ chồng (em|anh|mình)|chốt rồi|thống nhất rồi|(em|anh|tôi) (tự )?quyết|quyết định rồi|hai đứa|my (wife|husband)|we (both|two)|we (have )?(agreed|decided)';
+const QUYET_VUA = 'hỏi lại (vợ|chồng)|bàn với|hỏi ý|bố mẹ|gia đình|người nhà|về bàn|ask my (wife|husband)|discuss with|my (parents|family)';
+const QUYET_HO = 'hỏi hộ|hỏi giùm|hỏi giúp|người quen nhờ|bạn (em|anh) nhờ|asking for a friend|on behalf of';
 
 const HOI_CU_THE =
   'thông thuỷ|thông thủy|tim tường|phí quản lý|hướng ban công|hướng nào|ban công|' +
   'chỗ để ô tô|hầm xe|chỗ đỗ|bàn giao|nội thất|thô hay|sổ hồng|sổ đỏ|pháp lý|' +
   'tiến độ|mật độ|tiện ích|block|toà nào|tầng bao nhiêu|tầng mấy|m2 bao nhiêu|' +
-  'giá.{0,6}m2|một mét vuông|/m2|diện tích';
+  'giá.{0,6}m2|một mét vuông|/m2|diện tích|phòng ngủ|' +
+  'bedroom|balcony|handover|furnitur|parking|management fee|net area|' +
+  'sqm|square met|floor plan|title deed|pink book|which (tower|floor)';
 const HOI_CHUNG =
   'còn căn nào|giá bao nhiêu|bao nhiêu tiền|nhiêu vậy|gửi bảng giá|có gì gửi|' +
-  'gửi em xem|cho xin giá|giá thế nào|bao nhiêu ạ';
+  'gửi em xem|cho xin giá|giá thế nào|bao nhiêu ạ|' +
+  'price list|how much|any unit|quotation|send me the price';
 const LY_DO =
   'sinh con|có em bé|chuyển việc|chuyển công tác|hết hợp đồng thuê|hết hạn thuê|' +
-  'gần trường|con vào lớp|ở riêng|cưới|kết hôn|bố mẹ lên|ra riêng|đang thuê';
+  'gần trường|con vào lớp|ở riêng|cưới|kết hôn|bố mẹ lên|ra riêng|đang thuê|' +
+  'new baby|expecting|relocat|new job|closer to school|getting married|lease expire';
 
-const DA_XEM = 'đã xem|xem rồi|đi xem|đang xem|so sánh|bên .{0,15} (cũng|thì)|dự án .{0,20} (thì|cũng)';
+const DA_XEM = 'đã xem|xem rồi|đi xem|đang xem|so sánh|bên .{0,15} (cũng|thì)|dự án .{0,20} (thì|cũng)|site visit|visited|compared|checked out';
 const MOC_TG =
   'tháng (1[0-2]|[1-9])\\b|cuối năm|đầu năm|quý [1-4]|trước tết|sau tết|' +
-  'hết hợp đồng|trong (tháng|tuần) này|tuần sau|cuối tuần này|dọn vào';
-const MO_HO = 'đang tìm hiểu|tham khảo|xem dần|khi nào tiện|chưa vội|từ từ|để tính';
+  'hết hợp đồng|trong (tháng|tuần) này|tuần sau|cuối tuần này|dọn vào|' +
+  'this month|next month|next week|end of the year|before tet|asap';
+const MO_HO = 'đang tìm hiểu|tham khảo|xem dần|khi nào tiện|chưa vội|từ từ|để tính|just (looking|checking|browsing)|no rush|not in a hurry';
 
 /* Cờ Ảo */
 const A1_MOI_GIOI =
   'chiết khấu|hoa hồng|bảng hàng|rổ hàng|giỏ hàng|gửi khách|có căn nào giá tốt|' +
   'hàng ngộp|cắt lỗ|bên em có khách|anh có khách|share khách|phí môi giới|' +
-  'ck bao nhiêu|hợp tác bán';
+  'ck bao nhiêu|hợp tác bán|commission|co-?broke|referral fee|inventory list';
 const A7_LUA_DAO =
   'việc nhẹ lương cao|đầu tư sinh lời|nạp tiền|kết bạn zalo riêng|' +
   'cho (anh|chị) xin (cccd|căn cước|số tài khoản)|click vào|bấm vào link|' +
-  'nhận quà|trúng thưởng|vay nhanh|hỗ trợ tài chính';
+  'nhận quà|trúng thưởng|vay nhanh|hỗ trợ tài chính|' +
+  'investment opportunity|click (this|the) link|you have won|quick loan';
 
 /* ─────────── Trục 1: 4 tiêu chí ─────────── */
 
@@ -118,9 +183,11 @@ const A7_LUA_DAO =
  * 6 điểm, và máy không báo gì cả. Xếp một khách nóng vào nhóm "chạm 2 tuần
  * một lần" là kiểu sai tệ nhất: sai âm thầm.
  *
- * Bản vá này KHÔNG cố chấm đúng cho văn bản không dấu — bỏ dấu rồi so khớp
- * đẻ ra nhầm lẫn mới ("vốn" và "vơn", "tỷ" và "ti"), phải làm cẩn thận và có
- * bộ kiểm thử riêng. Ở đây chỉ làm một việc: KHÔNG GIẤU chuyện đó nữa.
+ * Cập nhật 17/09/2026: nay đã CHẤM ĐÚNG cho văn bản không dấu — xem
+ * chuanhoa.js và test/chuanhoa-tests.js. Hàm này vẫn giữ, nhưng đổi việc:
+ * không còn là lời thú nhận "máy chấm sai", mà là ghi chú "bản không dấu mất
+ * ba nhánh từ khoá bị loại vì đụng chữ khác nghĩa (lãi/lại, cưới/cuối,
+ * đang có/đang cố), nên vẫn kém bản có dấu một chút".
  *
  * Ngưỡng: tiếng Việt có dấu thường có 15–25% ký tự mang dấu. Dưới 4% thì
  * gần như chắc chắn là gõ không dấu.
@@ -417,11 +484,23 @@ export function chamDiem(vanBan, coTay = {}) {
     lyDoPhanLoai,
     hanhDong: HANH_DONG[phanLoai],
     tachDuocLoiKhach: tachDuoc,
-    doTinCay: (khongDau || !tachDuoc) ? 'thấp' : soTu < 60 ? 'thấp' : soTu < 150 ? 'trung bình' : 'khá',
+    doTinCay: (() => {
+      /* Bậc gốc theo độ dài hội thoại. */
+      const bac = soTu < 60 ? 'thấp' : soTu < 150 ? 'trung bình' : 'khá';
+      /* Không tách được lời khách là vấn đề nặng nhất: điểm có thể phồng lên
+         VÀ cờ Ảo có thể gắn oan. Giữ nguyên mức 'thấp'. */
+      if (!tachDuoc) return 'thấp';
+      /* Không dấu thì nay chấm được, chỉ hạ MỘT bậc chứ không ép xuống 'thấp'
+         như trước 17/09 — ép xuống thấp khi máy đã chấm đúng là tự bôi đen
+         kết quả đúng, và người dùng sẽ thôi tin vào cả chữ "thấp" lẫn chữ
+         "khá". */
+      if (khongDau) return bac === 'khá' ? 'trung bình' : 'thấp';
+      return bac;
+    })(),
     thieuDau: khongDau,
     ghiChuTinCay: [
       khongDau
-        ? 'Đoạn chat này gõ KHÔNG DẤU. Bộ tiêu chí dò theo tiếng Việt có dấu, nên điểm gần như chắc chắn THẤP HƠN THỰC TẾ — một khách nóng có thể bị xếp nhầm xuống Lạnh. Nếu bản gốc có dấu, dán lại bản có dấu rồi chấm lại.'
+        ? 'Đoạn chat này gõ KHÔNG DẤU. Máy đã tự bỏ dấu cả hai bên để so khớp nên vẫn chấm được, không còn bỏ sót như trước. Chỉ còn kém bản có dấu một chút: ba chữ ngắn phải loại ra để khỏi nhầm ("lãi" đụng "lại", "cưới" đụng "cuối"). Có bản gốc có dấu thì dán bản đó cho chắc.'
         : null,
       tachDuoc
         ? null
@@ -434,6 +513,16 @@ export function chamDiem(vanBan, coTay = {}) {
  * Xuất bộ từ khoá để module chân dung khách (profile.js) dùng lại.
  * Cố ý không sao chép sang file khác: một chỗ sửa, cả hai nơi đổi theo.
  */
+/**
+ * Mở ra cho bộ kiểm thử dùng trực tiếp.
+ *
+ * Cố ý xuất một hàm nội bộ: các phép kiểm thử chống nhầm lẫn ngôn ngữ cần hỏi
+ * đúng một câu — "chuỗi này có khớp mẫu kia không" — chứ không phải chấm cả
+ * hội thoại rồi đoán ngược xem điểm tới từ đâu. Kiểm thử qua đường vòng thì
+ * khi đỏ cũng không biết đỏ ở đâu.
+ */
+export { khopMot as khop };
+
 export const TU_KHOA = Object.freeze({
   TIEN, VAY, VAY_SAU, VON,
   QUYET_MANH, QUYET_VUA, QUYET_HO,

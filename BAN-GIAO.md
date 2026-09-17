@@ -1,6 +1,6 @@
 # Bàn giao — LỌC LEAD - XÂY HỒ SƠ KHÁCH HÀNG
 
-*Cập nhật 17/09/2026. Mở phiên mới thì đọc file này trước, đừng hỏi lại từ đầu.*
+*Cập nhật 17/09/2026 (lần 2, sau khi xong lớp chuẩn hoá đầu vào). Mở phiên mới thì đọc file này trước, đừng hỏi lại từ đầu.*
 *File này THAY THẾ bản `BAN-GIAO-BUOI-7.md` cũ. Quy trình nộp Campus nằm ở skill `build-to-own-campus`.*
 
 ---
@@ -13,7 +13,7 @@
 | Chạy thật | https://loc-lead-chung-cu.vercel.app |
 | Mã nguồn | https://github.com/AromAI-Lab/loc-lead-chung-cu (công khai) |
 | Trên máy | `~/Downloads/loc-lead-chung-cu` |
-| Kiểm thử | `npm test` → **ESLint + 115 phép**, phải xanh hết trước mỗi lần push |
+| Kiểm thử | `npm test` → **ESLint + 161 phép**, phải xanh hết trước mỗi lần push |
 
 **Địa chỉ web vẫn mang tên cũ `loc-lead-chung-cu` và KHÔNG được đổi** — mọi link UTM đã phát đi và link trong GitHub Skill đều trỏ về đó.
 
@@ -29,26 +29,41 @@ cd ~/Downloads/loc-lead-chung-cu && rm -f .git/index.lock && npm test && git add
 
 ---
 
-## 2. ⚠️ VIỆC ƯU TIÊN SỐ 1 — đầu vào thật là văn bản hỗn hợp
+## 2. ✅ ĐÃ XONG 17/09 — đầu vào hỗn hợp đã chấm đúng
 
-**Chị Hương xác nhận 17/09:** khi sale dán hội thoại vào, thực tế gặp **cả bốn kiểu trộn lẫn nhau**:
+**Vấn đề:** bộ từ khoá viết bằng tiếng Việt có dấu đầy đủ chữ, trong khi sale gõ lẫn lộn bốn kiểu — có dấu, không dấu, lẫn tiếng Anh, viết tắt. Đo 16/09: cùng một hội thoại, có dấu **NÓNG 9/12**, bỏ dấu **LẠNH 3/12**. Bản 16/09 mới chỉ cảnh báo, chưa chấm đúng.
 
-- có dấu tiếng Việt
-- **không dấu**
-- **lẫn tiếng Anh và tiếng Việt**
-- **viết tắt**
+**Đã làm:** thêm `public/lib/chuanhoa.js` — bỏ dấu, bảng viết tắt, và danh sách chữ cấm dùng ở dạng bỏ dấu. `criteria.js` và `profile.js` nay so khớp trên **cả hai dạng**: nguyên văn trên văn bản gốc, và bản bỏ dấu trên văn bản đã bỏ dấu. Một trong hai khớp là tính.
 
-**Toàn bộ bộ từ khoá hiện viết bằng tiếng Việt có dấu, đầy đủ chữ.** Đo thật 16/09: cùng một hội thoại, có dấu chấm **NÓNG 9/12**, bỏ dấu chấm **LẠNH 3/12**. Lệch 6 điểm.
+**Đo lại chính ca đó: 10/12 NÓNG ở cả hai bản — lệch 0 điểm.**
 
-Hiện tại mới chỉ **cảnh báo** chứ chưa chấm đúng: gặp đoạn không dấu thì hạ độ tin cậy xuống "thấp" và in dòng nói rõ điểm có thể thấp hơn thực tế (hàm `thieuDauTiengViet` trong `criteria.js`). **Chưa xử lý gì cho tiếng Anh và viết tắt.**
+Kiểm thử: **161 phép** (trước 115), thêm `test/chuanhoa-tests.js` 34 phép. `test/khong-dau-tests.js` đã viết lại — các phép cũ đòi máy *thú nhận là chấm sai*, giữ lại thì khoá chặt cái sai vào chỗ cũ.
 
-**Đây là việc phải làm trước cả tính năng ảnh chụp.** Vì nó không phải trường hợp hiếm — nó là cách sale gõ hằng ngày. Một công cụ chấm sai 6 điểm trên đầu vào phổ biến nhất thì không dùng được, dù giao diện có đẹp đến đâu.
+### Ba phát hiện ngày 17/09 — quan trọng hơn phần đã sửa
 
-**Hướng làm, cần bộ kiểm thử riêng vì rủi ro nhầm lẫn cao:**
-1. Chuẩn hoá cả văn bản lẫn mẫu từ khoá về dạng không dấu rồi so khớp trên **cả hai** dạng. Cạm bẫy: "tỷ" thành "ty" đụng "tỷ lệ"; "vốn" thành "von"; "có" thành "co". Phải có phép kiểm thử chống nhầm cho từng từ ngắn.
-2. Thêm từ khoá tiếng Anh cho các nhóm chính: budget, cash, loan, bank, 2BR/3BR, sqm, ROI, deposit, booking, handover, resale.
-3. Thêm bảng viết tắt hay gặp: `k` (nghìn), `tr`/`trieu`, `ty`, `pn` (phòng ngủ), `dt` (diện tích), `ck` (chiết khấu), `sh` (sổ hồng), `bg` (bàn giao), `ntt`/`nt` (nội thất), `cdt` (chủ đầu tư), `kh` (khách hàng).
-4. Bộ kiểm thử phải dựng từ **hội thoại thật của chị Hương**, không phải hội thoại nghĩ ra. Xem mục 6 để hiểu vì sao.
+**1. `vậy` bỏ dấu ra đúng mặt chữ `vay`.** *"Giá bao nhiêu vậy em"* là câu hỏi phổ thông nhất của khách Việt. Để nguyên thì mọi hội thoại không dấu đều được không một điểm T1. Chính ca kiểm thử "khách thật mới tìm hiểu" bị đẩy từ LẠNH SÂU lên LẠNH vì lỗi này.
+
+Bài học đắt hơn bản thân lỗi: **chặn ở lớp bỏ dấu là chặn hụt.** Khi sale gõ thẳng không dấu, văn bản GỐC đã là `vay` rồi, nên mẫu gốc khớp trước khi tới lượt lớp bỏ dấu. Những từ khoá vốn đã viết không dấu phải siết ngay trong `criteria.js`. Nay `vay` đứng trơ không còn được tính, phải đi kèm một chữ chỉ rõ nghĩa.
+
+**2. `lãi sau` bỏ dấu ra `lai sau`, đụng `lại sau`** — *"để em nhắn lại sau"*. Nhánh này thuộc `VAY_SAU`, cho thẳng **3 điểm T1**. Đã loại khỏi dạng bỏ dấu; hỏi lãi sau ưu đãi thật vẫn bắt được qua nhánh `sau ưu đãi`.
+
+**3. Năm chữ viết tắt trong bàn giao cũ KHÔNG được mở.** Bàn giao 16/09 liệt kê một bảng viết tắt gồm `ck`, `kh`, `dt`, `sh`, `nt`. Trong tin nhắn người Việt chúng có nghĩa khác phổ biến hơn:
+
+| Viết tắt | Bảng cũ định mở thành | Nghĩa hay gặp hơn | Vì sao không mở |
+|---|---|---|---|
+| `ck` | chiết khấu | **chuyển khoản** | "chiết khấu" nằm trong cờ **A1** — cờ quyết định, một cờ đủ xếp ẢO. Mở sai là bảo sale vứt đi khách thật. Đây là cái giá đắt nhất sản phẩm có thể trả |
+| `kh` | khách hàng | **không** ("kh có") | Đảo ngược nghĩa câu |
+| `dt` | diện tích | **điện thoại** | Cộng điểm nhu cầu không có thật |
+| `nt` | nội thất | **nhắn tin** | Như trên |
+| `sh` | sổ hồng | **xe SH** | Như trên |
+
+Mở: `pn` / `2BR` → phòng ngủ · `bg` → bàn giao · `ntt` → nội thất · `vc` → vợ chồng · `ls` → lãi suất. Có 4 phép kiểm thử khoá chiều ngược lại: ai thêm `ck`, `kh`, `dt`, `nt` vào bảng thì `npm test` đỏ ngay.
+
+### Còn nợ ở phần này
+
+- **Bộ kiểm thử phần C và D dựng từ hội thoại nghĩ ra**, không phải hội thoại thật (chị Hương xác nhận 17/09 là chưa có sẵn). Theo mục 6, xanh trên hội thoại nghĩ ra không chứng minh người viết nghĩ đúng. Có hội thoại thật kiểu hỗn hợp thì **phải thay**.
+- **Nhánh `ck bao nhiêu` trong cờ A1 vẫn khớp ở dạng không dấu.** Khách thật hỏi "ck bao nhiêu" theo nghĩa chuyển khoản vẫn có thể bị gắn A1 → ẢO. Nhánh này có từ trước, không phải do bản này sinh ra, nên chưa tự ý bỏ. Cần hội thoại thật để quyết.
+- **Mất một ít ở bản không dấu**, chấp nhận có chủ đích: *"sắp cưới nên cần nhà"* viết không dấu không còn tính là lý do mua, và *"anh vay đây"* trơ không cue thì mất. Đổi lại không nhận nhầm cả một lớp hội thoại.
 
 ---
 
@@ -69,7 +84,7 @@ Hiện tại mới chỉ **cảnh báo** chứ chưa chấm đúng: gặp đoạ
 
 ## 4. Cách kiểm thử — đã đổi, đọc kỹ
 
-`npm test` giờ chạy **ESLint trước, rồi mới chạy 115 phép**. Lint đỏ là dừng.
+`npm test` giờ chạy **ESLint trước, rồi mới chạy 161 phép**. Lint đỏ là dừng.
 
 **ESLint chỉ bật một luật có ý nghĩa: `no-undef`.** Lý do: ngày 16/09, khi sửa bố cục trang, hai dòng khai báo biến (`chanDungHienTai` và `NGUON_LEAD`) bị xoá nhầm cùng đoạn mã cũ. Hậu quả: khối *Chân dung khách* và nút *Lưu hồ sơ* biến mất khỏi trang, trong khi `npm test` vẫn báo 94 phép xanh.
 
@@ -153,8 +168,10 @@ Rút từ ba câu gợi ý xuống **một** câu — của tiêu chí điểm t
 
 ## 10. Việc còn treo, theo thứ tự ưu tiên
 
-1. **Chuẩn hoá đầu vào hỗn hợp** — không dấu, Anh-Việt, viết tắt. Xem mục 2. **Ưu tiên cao nhất.**
-2. **Nhận ảnh chụp hội thoại.** Ghi chú thiết kế đầy đủ ở `docs/tinh-nang-anh.md`, gồm cả phần chị Hương đính chính: ảnh chụp Zalo **gần như không có số điện thoại trong thân chat** — chỉ có ở thanh trên cùng (tên hiển thị là số khi chưa lưu danh bạ, và ảnh đại diện). Luật đã chốt: *"chỉ chụp phần nội dung trao đổi, không lấy thanh trên cùng"*.
+*Cập nhật 17/09/2026 — việc số 1 cũ đã xong, xem mục 2.*
+
+1. **Nhận ảnh chụp hội thoại.** Ghi chú thiết kế đầy đủ ở `docs/tinh-nang-anh.md`, gồm cả phần chị Hương đính chính: ảnh chụp Zalo **gần như không có số điện thoại trong thân chat** — chỉ có ở thanh trên cùng. Luật đã chốt: *"chỉ chụp phần nội dung trao đổi, không lấy thanh trên cùng"*. **Nay là việc ưu tiên cao nhất.**
+2. **Thay bộ kiểm thử chuẩn hoá bằng hội thoại thật** — xem phần "Còn nợ" ở mục 2. Rẻ và xoá được một giả định lớn.
 3. **Cổng chặn nhị phân theo đề xuất sale #2** (mục 9).
 4. **Hiệu chuẩn ngưỡng 9/6/3** bằng 30 lead đã biết kết quả. Chưa làm — trang và skill đều đang ghi rõ là chưa hiệu chuẩn xong.
 5. **Mở rộng phân khúc** — ô chọn phân khúc, mỗi phân khúc một bộ T3 và cờ Ảo riêng. Xem README.
@@ -171,7 +188,8 @@ Rút từ ba câu gợi ý xuống **một** câu — của tiêu chí điểm t
 | `docs/bai-nop-buoi-7.md` | Bài nộp Campus Buổi 7, chỗ 【 】 là điền số thật |
 | `docs/buoi7-phan-phoi.md` | 5 link UTM, 2 bài Facebook, tin nhắn Zalo, hoạt động email |
 | `docs/tinh-nang-anh.md` | Ghi chú thiết kế tính năng ảnh |
-| `docs/scoring-criteria.md` | Bộ tiêu chí đầy đủ — GitHub Skill đọc tệp này qua web |
+| `docs/scoring-criteria.md` | Bộ tiêu chí đầy đủ — GitHub Skill đọc tệp này qua web. Mục 7 là phần đầu vào hỗn hợp |
+| `public/lib/chuanhoa.js` | Lớp chuẩn hoá: bỏ dấu, viết tắt, danh sách chữ cấm — đọc phần chú thích trước khi thêm từ khoá |
 | `README.md` | Có mục *Mở rộng phân khúc* ở cuối |
 
 **GitHub Skill công khai:** https://github.com/AromAI-Lab/b2o-research-skills/tree/main/skills/cham-lead-bds

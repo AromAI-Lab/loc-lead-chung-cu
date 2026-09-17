@@ -18,26 +18,45 @@
  * từ bản ĐÃ ẩn danh hoá. Xem thêm lib/anonymize.js và README mục Bảo mật.
  */
 
-import { tachLoiKhach, TU_KHOA as TK } from './criteria.js';
+import { tachLoiKhach, TU_KHOA as TK, khop as khopHaiDang } from './criteria.js';
+import { chuanHoa, mauBoDau } from './chuanhoa.js';
 
 const soViet = (n) => String(n).replace('.', ',');
 
+/* Chân dung khách phải đọc được hội thoại gõ không dấu y như phần chấm điểm.
+   Trước 17/09/2026 module này có bộ so khớp riêng, chỉ dò tiếng Việt có dấu —
+   nên hội thoại không dấu chấm ra NÓNG mà hồ sơ khách thì trống trơn, và đó
+   mới là nửa sản phẩm mà sale giữ lại được sau ba tuần.
+   Nay dùng chung đường so khớp hai dạng với criteria.js. */
+
+/** Lấy đoạn khớp ĐẦU TIÊN. Ưu tiên bản gốc để giữ nguyên cách khách viết. */
 const khop = (t, mau) => {
-  const m = String(t || '').match(new RegExp(mau, 'iu'));
-  return m ? m[0].trim() : '';
+  const goc = String(t || '').match(new RegExp(mau, 'iu'));
+  if (goc) return goc[0].trim();
+  const m = mauBoDau(mau);
+  if (!m) return '';
+  const bd = chuanHoa(t).match(new RegExp(m, 'iu'));
+  return bd ? bd[0].trim() : '';
 };
 
+/** Lấy MỌI đoạn khớp, bỏ trùng. Tìm ở bản gốc trước, không có mới tìm bản bỏ dấu. */
 const khopHet = (t, mau) => {
-  const m = String(t || '').match(new RegExp(mau, 'giu')) || [];
-  const thay = [];
-  for (const x of m) {
-    const s = x.trim().toLowerCase();
-    if (!thay.includes(s)) thay.push(s);
-  }
-  return thay;
+  const gom = (chuoi, m) => {
+    const ds = String(chuoi || '').match(new RegExp(m, 'giu')) || [];
+    const thay = [];
+    for (const x of ds) {
+      const s = x.trim().toLowerCase();
+      if (!thay.includes(s)) thay.push(s);
+    }
+    return thay;
+  };
+  const a = gom(t, mau);
+  if (a.length) return a;
+  const m = mauBoDau(mau);
+  return m ? gom(chuanHoa(t), m) : [];
 };
 
-const co = (t, mau) => new RegExp(mau, 'iu').test(String(t || ''));
+const co = (t, mau) => khopHaiDang(String(t || ''), mau);
 
 /* ─────────── Từ khoá riêng của chân dung ─────────── */
 

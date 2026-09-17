@@ -11,6 +11,7 @@ import { kiemThuDoLen } from './dolen-tests.js';
 import { kiemThuTaiChinh } from './taichinh-tests.js';
 import { kiemThuKhongDau } from './khong-dau-tests.js';
 import { kiemThuLoiSale } from './loi-sale-tests.js';
+import { kiemThuChuanHoa } from './chuanhoa-tests.js';
 
 let dat = 0;
 let truot = 0;
@@ -84,6 +85,9 @@ kiemThuKhongDau(bao);
 
 console.log('\n=== 9. Lời sale không được gắn cờ cho khách ===\n');
 kiemThuLoiSale(bao);
+
+console.log('\n=== 10. Chuẩn hoá đầu vào hỗn hợp: không dấu, tiếng Anh, viết tắt ===\n');
+kiemThuChuanHoa(bao);
 
 console.log(`\n──────────────\nĐạt: ${dat} · Trượt: ${truot}\n`);
 process.exit(truot > 0 ? 1 : 0);

@@ -164,3 +164,40 @@ Bắt buộc phải có. Không có phần này thì tool chỉ là cái nhãn d
 | Hội thoại dưới 25 từ | Không đủ căn cứ | Tool **từ chối chấm** và trả về 3 câu hỏi nên hỏi trước |
 
 Hạng mục cuối là quan trọng nhất về mặt sản phẩm: **thà tool nói "chưa đủ dữ liệu" còn hơn chấm bừa.** Chấm bừa ba lần là sale bỏ tool.
+
+---
+
+## 7. Đầu vào hỗn hợp — không dấu, lẫn tiếng Anh, viết tắt
+
+*Thêm 17/09/2026.*
+
+Sale dán hội thoại vào thì thực tế gặp cả bốn kiểu trộn lẫn: có dấu, không dấu, lẫn tiếng Anh, và viết tắt. Bộ tiêu chí gốc viết bằng tiếng Việt có dấu đầy đủ chữ, nên trước bản này, **cùng một hội thoại: có dấu chấm NÓNG 9/12, bỏ dấu chấm LẠNH 3/12** — lệch 6 điểm và máy không báo gì.
+
+**Cách xử lý:** mỗi từ khoá được thử hai lần — nguyên văn trên văn bản gốc, và bản bỏ dấu trên văn bản đã bỏ dấu kèm mở viết tắt. Một trong hai khớp là tính. Đo lại ca trên: **10/12 NÓNG ở cả hai bản, lệch 0 điểm.**
+
+**Ba chữ bị loại khỏi dạng bỏ dấu**, vì bỏ dấu xong chúng đụng chữ khác nghĩa rất hay gặp:
+
+| Từ khoá | Bỏ dấu ra | Đụng phải | Hậu quả nếu giữ |
+|---|---|---|---|
+| `lãi` | `lai` | **lại** — "gọi lại", "nhắn lại" | Hội thoại nào cũng thành có nói chuyện vay |
+| `lãi sau` | `lai sau` | **lại sau** — "em nhắn lại sau" | T1 nhảy thẳng lên 3 điểm sai |
+| `cưới` | `cuoi` | **cuối** — "cuối năm", "cuối tuần" | Thêm lý do mua không có thật |
+| `đang có` | `dang co` | **đang cố** — "đang cố gắng" | Thành có sẵn tiền |
+
+Chữ `vay` là ca riêng: nó vốn đã không dấu, nên chặn ở lớp bỏ dấu là chặn hụt — khi sale gõ thẳng không dấu thì văn bản gốc đã là `vay`. Mà `vậy` bỏ dấu ra đúng mặt chữ đó, và *"giá bao nhiêu vậy em"* là câu hỏi phổ thông nhất của khách. Nên `vay` đứng trơ **không còn được tính**; phải đi kèm một chữ chỉ rõ nghĩa (*phải vay, vay ngân hàng, còn lại vay, vay 2 tỷ*…).
+
+**Viết tắt được mở:** `pn` / `2BR` → phòng ngủ · `bg` → bàn giao · `ntt` → nội thất · `vc` → vợ chồng · `ls` → lãi suất.
+
+**Viết tắt cố tình KHÔNG mở**, vì trong tin nhắn người Việt chúng có nghĩa khác phổ biến hơn:
+
+| Viết tắt | Nghĩa thường bị gán | Nghĩa thật hay gặp hơn | Vì sao nguy hiểm |
+|---|---|---|---|
+| `ck` | chiết khấu | **chuyển khoản** | "chiết khấu" nằm trong cờ A1 — cờ quyết định, một cờ là đủ xếp ẢO. Mở sai là bảo sale vứt đi khách thật |
+| `kh` | khách hàng | **không** | Mở sai là đảo ngược nghĩa câu |
+| `dt` | diện tích | **điện thoại** | Cộng điểm nhu cầu không có thật |
+| `nt` | nội thất | **nhắn tin** | Như trên |
+| `sh` | sổ hồng | **xe SH** | Như trên |
+
+**Rủi ro còn lại, chưa xử lý:** nhánh `ck bao nhiêu` trong cờ A1 vẫn khớp ở dạng không dấu. Khách thật hỏi *"ck bao nhiêu"* theo nghĩa chuyển khoản vẫn có thể bị gắn A1. Cần hội thoại thật để quyết có bỏ nhánh này không.
+
+**Độ tin cậy:** hội thoại không dấu nay chỉ hạ **một bậc**, không còn bị ép xuống "thấp" như bản 16/09 — ép xuống thấp khi máy đã chấm đúng là dạy người dùng nghi ngờ cả những cảnh báo thật.
