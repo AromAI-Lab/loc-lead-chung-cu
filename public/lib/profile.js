@@ -18,7 +18,7 @@
  * từ bản ĐÃ ẩn danh hoá. Xem thêm lib/anonymize.js và README mục Bảo mật.
  */
 
-import { tachLoiKhach, TU_KHOA as TK, khop as khopHaiDang } from './criteria.js';
+import { tachLoiKhach, TU_KHOA as TK, khop as khopHaiDang, coVayThat } from './criteria.js';
 import { chuanHoa, mauBoDau } from './chuanhoa.js';
 
 const soViet = (n) => String(n).replace('.', ',');
@@ -60,7 +60,13 @@ const co = (t, mau) => khopHaiDang(String(t || ''), mau);
 
 /* ─────────── Từ khoá riêng của chân dung ─────────── */
 
-const O = 'để ở|nhà (anh|chị|em|mình) ở|gia đình ở|mua ở|ở thôi|hai vợ chồng ở|dọn vào|con vào lớp|ra riêng';
+/* Thêm 17/09/2026 sau khi chạy thử trang thật: khách viết "cho vc anh o"
+   (= cho vợ chồng anh ở) mà ô Nhu cầu vẫn để "Chưa rõ", rồi máy đi hỏi lại
+   đúng câu khách vừa trả lời. Hỏi lại thứ khách đã nói là cách nhanh nhất
+   làm sale mất niềm tin vào công cụ. */
+const O = 'để ở|nhà (anh|chị|em|mình) ở|gia đình ở|mua ở|ở thôi|hai vợ chồng ở|' +
+  '(vợ chồng|gia đình|hai đứa) .{0,12} ở\\b|cho (anh|chị|em|mình|con|cháu) ở\\b|' +
+  'dọn vào|con vào lớp|ra riêng';
 const DAU_TU = 'đầu tư|lướt sóng|lướt\\b|sinh lời|sang tay|mua đi bán lại|dòng tiền';
 const CHO_THUE = 'cho thuê|khai thác thuê|thuê lại';
 
@@ -77,7 +83,7 @@ function locNhuCau(t) {
 }
 
 function locTaiChinh(t) {
-  const vay = co(t, TK.VAY);
+  const vay = coVayThat(t);
   const von = co(t, TK.VON);
   const kyLuong = co(t, TK.VAY_SAU);
   if (kyLuong) return 'Đã tính kỹ khoản vay (hỏi lãi sau ưu đãi / thẩm định)';
@@ -113,6 +119,33 @@ const CAU_HOI_LAP_O = {
   T4: 'Anh/chị dự tính khi nào thì cần nhận nhà ạ? Đã đi xem dự án nào quanh đây chưa ạ?'
 };
 
+/**
+ * Câu hỏi cho T3 phải nhìn vào HỒ SƠ, không chỉ nhìn vào điểm.
+ *
+ * Bắt được khi chạy thử trang thật 17/09/2026: khách đã nói rõ "can 2pn cho
+ * vc anh o" mà máy vẫn gợi ý hỏi "mua để ở hay đầu tư, cần mấy phòng ngủ" —
+ * hỏi lại đúng hai thứ khách vừa trả lời.
+ *
+ * Điểm T3 thấp là ĐÚNG: khách nêu yêu cầu chứ không hỏi chi tiết nào về căn
+ * hộ. Nhưng câu hỏi sinh ra từ điểm thì mù; nó phải sinh từ CHỖ CÒN TRỐNG
+ * trong hồ sơ. Hỏi lại thứ khách vừa nói là cách nhanh nhất làm sale thôi tin
+ * công cụ — mất niềm tin ở câu gợi ý thì họ bỏ luôn cả phần chấm điểm.
+ */
+function cauHoiT3(cd) {
+  const biNhuCau = cd.nhuCau && cd.nhuCau !== 'Chưa rõ';
+  const biLoaiCan = Boolean(cd.loaiCan);
+  if (!biNhuCau) {
+    return biLoaiCan
+      ? 'Anh/chị mua để gia đình ở hay để đầu tư ạ?'
+      : CAU_HOI_LAP_O.T3;
+  }
+  if (!biLoaiCan) return 'Anh/chị cần căn mấy phòng ngủ, diện tích khoảng bao nhiêu ạ?';
+  if (!cd.lyDoMua) {
+    return 'Điều gì khiến anh/chị tìm nhà vào lúc này ạ — công việc, trường của cháu, hay hết hạn thuê?';
+  }
+  return 'Anh/chị ưu tiên hướng nào và tầng khoảng bao nhiêu ạ?';
+}
+
 const TEN_O_TRONG = {
   T1: 'Chưa rõ khả năng tài chính',
   T2: 'Chưa biết ai là người quyết',
@@ -132,12 +165,12 @@ function locVuongMac(t, luat) {
   return v;
 }
 
-function locCauNenHoi(luat) {
+function locCauNenHoi(luat, cd) {
   return (luat.tieuChi || [])
     .filter((tc) => tc.diem <= 1 && CAU_HOI_LAP_O[tc.ma])
     .sort((a, b) => a.diem - b.diem)
     .slice(0, 3)
-    .map((tc) => CAU_HOI_LAP_O[tc.ma]);
+    .map((tc) => (tc.ma === 'T3' ? cauHoiT3(cd) : CAU_HOI_LAP_O[tc.ma]));
 }
 
 /**
@@ -158,6 +191,13 @@ export function trichChanDung(vanBanSach, luat, ai = null, coTay = {}) {
 
   const loai = khop(t, LOAI_CAN);
 
+  /* Tính trước các ô máy trích được, để câu hỏi gợi ý biết ô nào đã đầy. */
+  const oDaDien = {
+    nhuCau: locNhuCau(t),
+    loaiCan: loai ? loai.toUpperCase().replace(/\s+/g, '') : '',
+    lyDoMua: khop(t, TK.LY_DO)
+  };
+
   return {
     /* Sale tự điền, để trống thì danh sách hiện nhãn tạm */
     ten: '',
@@ -165,15 +205,15 @@ export function trichChanDung(vanBanSach, luat, ai = null, coTay = {}) {
     ghiChu: '',
 
     /* Máy trích */
-    nhuCau: locNhuCau(t),
-    loaiCan: loai ? loai.toUpperCase().replace(/\s+/g, '') : '',
+    nhuCau: oDaDien.nhuCau,
+    loaiCan: oDaDien.loaiCan,
     dienTich: khop(t, DIEN_TICH).replace(/\s+/g, ''),
     nganSach: nganSachNhap ? `${soViet(nganSachNhap)} tỷ` : (soTien[0] || ''),
     giaCan: giaCanNhap ? `${soViet(giaCanNhap)} tỷ` : '',
     soTienNhacToi: soTien,
     taiChinh: locTaiChinh(t),
     nguoiQuyet: locNguoiQuyet(t),
-    lyDoMua: khop(t, TK.LY_DO),
+    lyDoMua: oDaDien.lyDoMua,
     mocThoiGian: khop(t, TK.MOC_TG),
     daDiXem: co(t, TK.DA_XEM),
     quanTam: khopHet(t, TK.HOI_CU_THE),
@@ -187,7 +227,7 @@ export function trichChanDung(vanBanSach, luat, ai = null, coTay = {}) {
 
     /* Việc tiếp theo */
     vuongMac: locVuongMac(t, luat),
-    cauNenHoi: locCauNenHoi(luat),
+    cauNenHoi: locCauNenHoi(luat, oDaDien),
     viecTiepTheo: (luat.hanhDong && luat.hanhDong.viec) || '',
     tinNhanGoiY: (ai && ai.tinNhanGoiY) || '',
     diemMuChinh: (ai && ai.diemMuChinh) || '',

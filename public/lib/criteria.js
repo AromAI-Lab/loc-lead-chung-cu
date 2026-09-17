@@ -111,6 +111,22 @@ const TIEN = '\\d+([.,]\\d+)?\\s*(tỷ|tỉ|triệu|tr\\b|củ\\b|billion|bil\\b
 const VAY = '(phải|cần|định|tính|dự tính|chắc|sẽ|muốn|đang|đi|nên|được|không|có|hỗ trợ|xin|lại) vay|' +
   'vay (ngân hàng|tiền|vốn|thêm|bao nhiêu|được|gói|mua|thế chấp|thì)|vay \\d|' +
   'trả góp|ngân hàng|lãi suất|lãi\\b|gói vay|giải ngân|loan|mortgage|installment|interest rate|bank package';
+/* Phủ định khoản vay.
+   Bắt được lúc chạy thử trên trang thật 17/09/2026: khách nói "anh có tài chính
+   5 tỷ, KHÔNG CẦN VAY đâu em, trả thẳng một lần luôn" — hồ sơ vẫn điền
+   "Có vốn tự có, phần còn lại vay". Sai hẳn nghĩa câu.
+
+   Đây là lỗi có từ trước, không phải do lớp chuẩn hoá sinh ra: bộ từ khoá chỉ
+   dò MẶT CHỮ, không đọc phủ định. Điểm không đổi (3 điểm dù trả thẳng hay vay),
+   nhưng dòng chữ trong hồ sơ thì sai — mà hồ sơ mới là thứ sale đọc lại sau ba
+   tuần, lúc đã quên hội thoại gốc.
+
+   Cách chặn: đếm. Mỗi cụm phủ định cũng khớp VAY đúng một lần, nên số lần khớp
+   VAY mà không nhiều hơn số cụm phủ định thì nghĩa là mọi chỗ nhắc vay đều
+   đang bị phủ định. Cách này chịu được câu vừa có vừa không:
+   "còn lại vay, không cần vay thêm" → 2 so với 1 → vẫn tính là có vay. */
+const PHU_DINH_VAY = '(không|ko|kg|chẳng|khỏi)\\s*(cần|phải|muốn|định|có|dùng|thích)?\\s*vay|vay (gì|đâu)|miễn vay';
+
 const VAY_SAU = 'thả nổi|sau ưu đãi|hết ưu đãi|lãi sau|duyệt vay|thẩm định|pre-?approve|chứng minh thu nhập|floating rate|after promo|proof of income|credit approval';
 /* Sale phản hồi 15/09: khách nói "có tài chính 5 tỷ" mà tool vẫn báo "chưa rõ tài chính".
    Nguyên nhân: hai cách nói phổ biến nhất của người Việt — "tài chính" và "ngân sách" —
@@ -154,6 +170,16 @@ const A7_LUA_DAO =
   'cho (anh|chị) xin (cccd|căn cước|số tài khoản)|click vào|bấm vào link|' +
   'nhận quà|trúng thưởng|vay nhanh|hỗ trợ tài chính|' +
   'investment opportunity|click (this|the) link|you have won|quick loan';
+
+/**
+ * Khách có thật sự nói tới chuyện vay không, hay chỉ nói là KHÔNG vay?
+ * Dùng chung cho cả phần chấm điểm và phần dựng hồ sơ khách, để hai nơi
+ * không bao giờ nói hai điều khác nhau về cùng một câu.
+ */
+export function coVayThat(t) {
+  if (!co(t, VAY)) return false;
+  return dem(t, VAY) > dem(t, PHU_DINH_VAY);
+}
 
 /* ─────────── Trục 1: 4 tiêu chí ─────────── */
 
@@ -205,7 +231,7 @@ function chamTaiChinh(t, boiCanh = {}) {
   const { nganSachTay = false, tachDuoc = false } = boiCanh;
 
   const coTien = co(t, TIEN) || nganSachTay;
-  const coVay = co(t, VAY);
+  const coVay = coVayThat(t);
   const coVaySau = co(t, VAY_SAU);
   const coVon = co(t, VON) || nganSachTay;
 
@@ -329,7 +355,7 @@ function timCoAo(t, coTay = {}) {
 
   const gia = Number(coTay.giaCanDangBan) || 0;
   const ns = Number(coTay.nganSachKhachNeu) || 0;
-  if (gia > 0 && ns > 0 && ns < gia * 0.6 && !co(t, VAY)) {
+  if (gia > 0 && ns > 0 && ns < gia * 0.6 && !coVayThat(t)) {
     co_.push({
       ma: 'A2',
       ten: 'Ngân sách lệch quá xa',
@@ -527,7 +553,7 @@ export const TU_KHOA = Object.freeze({
   TIEN, VAY, VAY_SAU, VON,
   QUYET_MANH, QUYET_VUA, QUYET_HO,
   HOI_CU_THE, HOI_CHUNG, LY_DO,
-  DA_XEM, MOC_TG, MO_HO
+  DA_XEM, MOC_TG, MO_HO, PHU_DINH_VAY
 });
 
 export { HANH_DONG };

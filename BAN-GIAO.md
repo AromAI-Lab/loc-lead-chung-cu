@@ -13,7 +13,7 @@
 | Chạy thật | https://loc-lead-chung-cu.vercel.app |
 | Mã nguồn | https://github.com/AromAI-Lab/loc-lead-chung-cu (công khai) |
 | Trên máy | `~/Downloads/loc-lead-chung-cu` |
-| Kiểm thử | `npm test` → **ESLint + 161 phép**, phải xanh hết trước mỗi lần push |
+| Kiểm thử | `npm test` → **ESLint + 167 phép**, phải xanh hết trước mỗi lần push |
 
 **Địa chỉ web vẫn mang tên cũ `loc-lead-chung-cu` và KHÔNG được đổi** — mọi link UTM đã phát đi và link trong GitHub Skill đều trỏ về đó.
 
@@ -37,7 +37,7 @@ cd ~/Downloads/loc-lead-chung-cu && rm -f .git/index.lock && npm test && git add
 
 **Đo lại chính ca đó: 10/12 NÓNG ở cả hai bản — lệch 0 điểm.**
 
-Kiểm thử: **161 phép** (trước 115), thêm `test/chuanhoa-tests.js` 34 phép. `test/khong-dau-tests.js` đã viết lại — các phép cũ đòi máy *thú nhận là chấm sai*, giữ lại thì khoá chặt cái sai vào chỗ cũ.
+Kiểm thử: **167 phép** (trước 115), thêm `test/chuanhoa-tests.js` 34 phép. `test/khong-dau-tests.js` đã viết lại — các phép cũ đòi máy *thú nhận là chấm sai*, giữ lại thì khoá chặt cái sai vào chỗ cũ.
 
 ### Ba phát hiện ngày 17/09 — quan trọng hơn phần đã sửa
 
@@ -67,6 +67,22 @@ Mở: `pn` / `2BR` → phòng ngủ · `bg` → bàn giao · `ntt` → nội th�
 
 ---
 
+## 2b. Hai lỗi nữa, tìm ra khi chạy thử TRÊN TRANG THẬT 17/09
+
+Đây là bằng chứng mới cho quy tắc ở mục 4: `npm test` xanh không đủ, phải mở trang thật dán một đoạn chat thật rồi bấm hết luồng. 167 phép kiểm thử đang xanh lúc tìm ra hai lỗi này.
+
+**1. Phủ định khoản vay không được đọc.** Khách nói *"anh có tài chính 5 tỷ, KHÔNG CẦN VAY đâu em, trả thẳng một lần luôn"* — hồ sơ vẫn điền *"Có vốn tự có, phần còn lại vay"*. Bộ từ khoá chỉ dò mặt chữ, không đọc phủ định. **Điểm không sai** (trả thẳng hay vay đều 3 điểm T1), nhưng **chữ trong hồ sơ thì sai** — mà hồ sơ mới là thứ sale đọc lại sau ba tuần, lúc đã quên hội thoại gốc. Lỗi này có từ trước, không phải do lớp chuẩn hoá sinh ra.
+
+Đã chặn bằng `PHU_DINH_VAY` + hàm `coVayThat()` dùng chung cho cả chấm điểm lẫn hồ sơ, theo lối **đếm**: mỗi cụm phủ định cũng khớp `VAY` đúng một lần, nên số lần khớp `VAY` không nhiều hơn số cụm phủ định thì mọi chỗ nhắc vay đều đang bị phủ định. Câu vừa có vừa không (*"còn lại vay, không cần vay thêm"*) vẫn tính là có vay.
+
+**2. Máy hỏi lại đúng thứ khách vừa trả lời.** Khách viết *"can 2pn cho vc anh o"*, máy vẫn gợi ý hỏi *"mua để ở hay đầu tư, cần mấy phòng ngủ"*. Hai nguyên nhân:
+- Mẫu nhu cầu `O` không bắt cách nói *"cho vợ chồng anh ở"* → đã thêm.
+- **Câu gợi ý sinh từ ĐIỂM chứ không từ CHỖ CÒN TRỐNG.** T3 = 1 điểm là đúng (khách nêu yêu cầu chứ không hỏi chi tiết nào về căn hộ), nhưng câu hỏi thì mù. Nay `cauHoiT3()` nhìn vào hồ sơ: nhu cầu trống thì hỏi nhu cầu, loại căn trống thì hỏi loại căn, cả hai đầy rồi thì hỏi lý do mua.
+
+**Nguyên tắc rút ra:** điểm nói *lead này đáng bao nhiêu*; câu gợi ý nói *hỏi gì tiếp*. Hai việc khác nhau, không được lấy cái này sinh ra cái kia. Hỏi lại thứ khách vừa nói là cách nhanh nhất làm sale thôi tin công cụ — mất niềm tin ở câu gợi ý thì họ bỏ luôn cả phần chấm điểm.
+
+---
+
 ## 3. Bốn lỗi đã sửa ngày 16/09 — đọc để không lặp lại
 
 | # | Lỗi | Nguyên nhân gốc | Nay được khoá bởi |
@@ -84,7 +100,7 @@ Mở: `pn` / `2BR` → phòng ngủ · `bg` → bàn giao · `ntt` → nội th�
 
 ## 4. Cách kiểm thử — đã đổi, đọc kỹ
 
-`npm test` giờ chạy **ESLint trước, rồi mới chạy 161 phép**. Lint đỏ là dừng.
+`npm test` giờ chạy **ESLint trước, rồi mới chạy 167 phép**. Lint đỏ là dừng.
 
 **ESLint chỉ bật một luật có ý nghĩa: `no-undef`.** Lý do: ngày 16/09, khi sửa bố cục trang, hai dòng khai báo biến (`chanDungHienTai` và `NGUON_LEAD`) bị xoá nhầm cùng đoạn mã cũ. Hậu quả: khối *Chân dung khách* và nút *Lưu hồ sơ* biến mất khỏi trang, trong khi `npm test` vẫn báo 94 phép xanh.
 

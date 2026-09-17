@@ -117,4 +117,48 @@ S: Dạ vâng anh.`;
       bao(t1.diem >= 2, `Bắt được cách nói: "${c}"`, `${t1.diem} điểm · ${t1.canCu.join(' | ')}`);
     }
   }
+
+  /* 6. Phủ định khoản vay — bắt được khi chạy thử trang thật 17/09/2026.
+
+     Khách nói rõ "KHÔNG CẦN VAY đâu em, trả thẳng một lần" mà hồ sơ vẫn ghi
+     "Có vốn tự có, phần còn lại vay". Điểm không sai, nhưng CHỮ thì sai — mà
+     hồ sơ mới là thứ sale đọc lại sau ba tuần, lúc đã quên hội thoại gốc.
+
+     Hội thoại dưới đây là đoạn em đã dán thật vào trang
+     loc-lead-chung-cu.vercel.app lúc 10:20 ngày 17/09, không phải nghĩ ra. */
+  {
+    const traThang = `S: Em chao anh, ben em con can 2PN huong Dong Nam a.
+K: Anh dang tim can 2pn cho vc anh o, tam 70m2 tro len.
+K: Anh co tai chinh 5 ty, khong can vay dau em, tra thang mot lan luon.
+K: Vc anh thong nhat roi, truoc Tet la phai nhan nha.
+K: Anh di xem 2 du an quanh day roi nhung chua ung. Gia bao nhieu vay em?`;
+
+    const kq = chamDiem(traThang, {});
+    const cd = trichChanDung(traThang, kq, null, {});
+
+    bao(!/vay/i.test(cd.taiChinh),
+      'Khách nói "khong can vay" thì hồ sơ KHÔNG được ghi là có vay',
+      `nhận "${cd.taiChinh}"`);
+    bao(/sẵn|tự có|tiền/i.test(cd.taiChinh),
+      'Phải ghi đúng là khách có tiền sẵn', `nhận "${cd.taiChinh}"`);
+    bao(timT1(kq).diem === 3,
+      'Trả thẳng vẫn phải được đủ 3 điểm tài chính — không vay không phải là yếu',
+      `${timT1(kq).diem} điểm`);
+
+    bao(cd.nhuCau === 'Để ở',
+      '"cho vc anh o" phải đọc ra nhu cầu Để ở, không để "Chưa rõ"',
+      `nhận "${cd.nhuCau}"`);
+    bao(!/phòng ngủ/i.test((cd.cauNenHoi || []).join(' ')),
+      'Không được hỏi lại số phòng ngủ khi khách đã nói "2pn"',
+      (cd.cauNenHoi || []).join(' | '));
+
+    /* Câu vừa có vừa không thì vẫn phải tính là CÓ vay. */
+    const vuaCoVuaKhong = `K: Anh tim can 2pn cho gia dinh o, tam 70m2.
+K: Anh co san 2 ty, con lai vay ngan hang, khong can vay them ben ngoai.
+K: Vo chong anh thong nhat roi, cuoi nam nhan nha.`;
+    const cd2 = trichChanDung(vuaCoVuaKhong, chamDiem(vuaCoVuaKhong, {}), null, {});
+    bao(/vay/i.test(cd2.taiChinh),
+      'Vừa có vay vừa có phủ định thì vẫn phải tính là CÓ vay',
+      `nhận "${cd2.taiChinh}"`);
+  }
 }

@@ -127,7 +127,13 @@ Nếu tiện, cho em xin đúng hai câu: **mở ra rồi anh/chị dừng lại
 
 ### Cách làm
 
-**Bước 1 — Google Biểu mẫu**, hai câu hỏi thôi:
+**Bước 1 — Google Biểu mẫu** — ĐÃ TẠO VÀ ĐÃ XUẤT BẢN 17/09/2026:
+- Link phát đi: https://docs.google.com/forms/d/e/1FAIpQLScVBBpD5vCpCEkFTXXZgXy1CLNwWMVp6wK5oS0UlqtkVQ_V_Q/viewform
+- Link sửa: https://docs.google.com/forms/d/1gW6yMhvk_FBT6KQ3iiSWmQMAynuQWzcvYljZafzvClA/edit
+- Cài đặt quan trọng: *Thu thập địa chỉ email = "Thông tin về người trả lời"* (người nhập tay). KHÔNG dùng "Đã xác minh" — trình duyệt trong Zalo không có phiên Google, bật lên là sale gặp tường đăng nhập rồi thoát.
+- Ô khu vực để 5 lựa chọn cố định thay vì ô gõ tự do, cho khỏi phải dọn "HCM / Hồ Chí Minh / Sài Gòn / tphcm" lúc đếm.
+
+Hai câu hỏi thôi:
 - *Email của anh/chị*
 - *Anh/chị đang bán căn hộ ở khu vực nào?* (câu này để phân loại, và để biết người đăng ký có đúng tệp không)
 

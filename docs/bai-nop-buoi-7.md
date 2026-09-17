@@ -14,7 +14,19 @@ Dán đoạn chat Zalo với khách bất động sản → biết lead nào Ả
 
 ## Bài 1 — 100 người dùng đầu tiên
 
-**Con số thật đo được tính tới 【giờ】 ngày 17/09: 【N】 lượt truy cập, 【M】 người bấm chấm, 【P】 người dán hội thoại thật của họ (không phải ca mẫu).**
+**Con số thật đo được lúc 10:15 ngày 17/09, lấy thẳng từ PostHog:**
+
+| | Tất cả | Sau khi bỏ dữ liệu thử của em |
+|---|---|---|
+| Lượt xem trang | 13 lượt · 6 người | **6 lượt · 4 người** |
+| Bấm chấm | 12 lần · 4 người | |
+| — trong đó bấm **ca mẫu** | 9 lần · 3 người | |
+| — trong đó **dán hội thoại thật** | 3 lần · 2 người | **2 lần · 1 người** |
+| Lưu hồ sơ khách | 3 lần · 2 người | **2 lần · 1 người** |
+
+**Người lạ thật sự dùng: 1.** Không phải 100.
+
+Con số 1 đó là con số em quan tâm nhất trong bảng, vì nó là người duy nhất tự dán hội thoại khách của chính họ vào và bấm chấm hai lần rồi lưu hồ sơ — tức là dùng hết luồng, không phải xem thử. Chín lần bấm còn lại là bấm ca mẫu: người ta tò mò, bấm thử cái nút, rồi thoát.
 
 Em nộp đúng số đo được, không độn. Chưa đạt 100. Ba lý do, nói thẳng:
 
@@ -27,6 +39,10 @@ Em nộp đúng số đo được, không độn. Chưa đạt 100. Ba lý do, n
 - **Câu chào hàng của chính sale ("để em gửi anh bảng hàng") làm khách của họ bị gắn cờ "nghi môi giới đối thủ" và bị xếp ẢO** — tức là công cụ bảo sale vứt đi đúng khách sắp mua
 - Hội thoại gõ không dấu bị chấm lệch 6 điểm mà máy không cảnh báo gì
 - Một ca kiểm thử cốt lõi đang xanh một cách tình cờ, nhờ chính lỗi số 2 che đi
+
+Sáng nay 17/09 em làm tiếp việc lớn nhất trong số đó. Sale gõ Zalo thì lẫn lộn cả bốn kiểu: có dấu, không dấu, lẫn tiếng Anh, viết tắt. Bộ tiêu chí của em viết bằng tiếng Việt có dấu đầy đủ chữ — nên **cùng một hội thoại, bản có dấu chấm NÓNG 9/12, bản không dấu chấm LẠNH 3/12.** Lệch 6 điểm, và máy im lặng. Em đã dựng lớp chuẩn hoá bỏ dấu cho cả văn bản lẫn từ khoá: **đo lại cùng ca đó, 10/12 NÓNG ở cả hai bản, lệch 0.**
+
+Phần khó không phải bỏ dấu, mà là mấy chữ bỏ dấu xong thì đụng chữ khác nghĩa: *"vậy"* thành *"vay"* (mà "giá bao nhiêu **vậy** em" là câu hỏi phổ thông nhất của khách), *"lại sau"* thành *"lãi sau"*, *"cuối năm"* thành *"cưới"*. Em phải viết bộ kiểm thử riêng để chặn từng chữ một — 34 phép, tổng lên 167.
 
 Em quyết định sửa trước rồi mới đăng. Kéo 100 người vào một công cụ đang ném đi lead nóng thì được con số đẹp trong bài nộp và mất sạch người dùng ngoài đời.
 
@@ -60,7 +76,19 @@ Chạy thử lần đầu em phát hiện dòng `defaults` của PostHog **tự 
 
 **Một lời hứa không có mã chặn ở dưới thì chỉ là câu chữ.**
 
-**Ảnh chụp minh chứng:** 【ảnh PostHog: Web analytics lọc theo `utm_campaign = buoi7`, thấy được ba nguồn · ảnh danh sách sự kiện `bam_cham`】
+**Số đo được của ba kênh — và đây là chỗ em phải nói thẳng:**
+
+| Kênh | `utm_source` | Người bấm vào |
+|---|---|---|
+| Zalo | `zalo` | **3** |
+| Facebook | `facebook` | **0** |
+| GitHub Skill | `github` | **0** |
+
+**Chỉ kênh Zalo ra người. Hai kênh kia bằng không.** Link đã gắn đúng, đo lường chạy đúng — nên số 0 này là số thật chứ không phải lỗi đo. Nó nói rằng bài đăng Facebook của em không tới được sale bất động sản (đúng như em phân tích ở Bài 1: tệp Fanpage của em không trùng tệp khách của sản phẩm), và GitHub Skill thì mới đăng, chưa ai cài.
+
+Giá trị của việc gắn đo lường nằm ở đây: không gắn thì em vẫn tưởng ba kênh đều đang chạy. Gắn rồi mới biết chỉ có một kênh sống, và đó là kênh tốn công nhất — nhắn tay từng người.
+
+**Ảnh chụp minh chứng:** 【ảnh PostHog Web analytics · ảnh danh sách sự kiện `bam_cham` có cột `tu_ca_mau`】
 
 ---
 
@@ -99,9 +127,13 @@ Rồi nói thẳng: *"Từ lead thứ năm trở đi trong ngày thì nên dùng
 
 **Vì sao là link chứ không nhúng biểu mẫu vào trang:** nhúng biểu mẫu là thêm script bên thứ ba — trái với lời hứa "ngoài PostHog ra không có gì khác" vừa in trên trang. Một cái link mở tab mới thì không phá lời hứa đó.
 
-**Biểu mẫu:** 【link Google Biểu mẫu】 — dùng lại đúng bộ 6 câu đã moi được phản hồi thật từ sale, thêm một câu "anh/chị đang bán ở khu vực nào" để biết người trả lời có đúng tệp không.
+**Biểu mẫu đã tạo và đã xuất bản:** https://docs.google.com/forms/d/e/1FAIpQLScVBBpD5vCpCEkFTXXZgXy1CLNwWMVp6wK5oS0UlqtkVQ_V_Q/viewform
 
-Câu quan trọng nhất trong bộ đó là **"cái nào vô lý"**. Nó buộc người ta chê cụ thể. Bỏ câu đó đi thì form chỉ còn toàn "Có / Có / Có" — và chính câu đó đẻ ra lỗi tài chính mà em đã sửa.
+Đúng hai ô, cố ý không hỏi thêm: **email** (người nhập tay, không bắt đăng nhập Google) và **anh/chị đang bán căn hộ ở khu vực nào** (5 lựa chọn cố định).
+
+**Vì sao chỉ hai ô, và vì sao không bắt đăng nhập Google:** người của em bấm link từ tin nhắn Zalo, mà trình duyệt trong Zalo không mang theo phiên đăng nhập Google. Bật chế độ email đã xác thực thì sale gặp tường đăng nhập ngay ở bước đầu và thoát. Em chọn email gõ tay — chấp nhận vài cái sai chính tả để đổi lấy người thật sự vào được. Chỗ rớt người nguy hiểm hơn chỗ sai chính tả.
+
+**Bộ 6 câu khảo sát là việc khác, không nằm trong biểu mẫu này.** Bộ đó em gửi riêng cho người **đã dùng thử công cụ**, vì nó hỏi về trải nghiệm dùng. Hỏi "cái nào vô lý" với người chưa dùng thì không ra gì. Câu đó mới là câu mạnh nhất của bộ 6 — nó buộc người ta chê cụ thể, và chính nó đẻ ra lỗi tài chính em đã sửa. Biểu mẫu ở đây làm một việc khác hẳn: đổi bộ tiêu chí lấy một địa chỉ email.
 
 **Thư gửi ngay cho người đăng ký** có một đoạn em cố ý đưa vào:
 
